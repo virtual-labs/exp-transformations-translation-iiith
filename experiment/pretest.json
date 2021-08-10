@@ -1,18 +1,36 @@
 [
-{"question":"This is a Sample Question 1?",
+{"question":" Matrix( (1,0,0,5), (0,1,0,-3), (0,0,1,6), (0,0,0,1) ) Q1. When the following translation matrix is applied to point (10,10,10), it becomes ",
 "answers":{
-            "a":"answer1",
-            "b":"answer2",
-            "c":"answer3",
-            "d":"answer4"
+            "a":"(5,7,4)",
+            "b":"(15,7,16)",
+            "c":"(15,7,4)",
+            "d":"(15,13,16)"
           },
 "correctAnswer":"a"},
-{"question":"This is a Sample Question 2?",
+{"question":" Q2. If the point (-10,14,20) is translated according to the vector (-10,2,8), it becomes ",
 "answers":{
-            "a":"answer1",
-            "b":"answer2",
-            "c":"answer3",
-            "d":"answer4"
+            "a":"(-20,16,28)",
+            "b":"(0,16,28)",
+            "c":"(0,16,12)",
+            "d":"(-20,16,12)"
           },
-"correctAnswer":"c"} 
+"correctAnswer":"c"}, 
+
+{"question":" Q3. Identify the translation vector v which transforms point A (1,1,5) to point B (-11,13,-7). ",
+"answers":{
+            "a":"(12,-12,12)",
+            "b":"(-12,12,12)",
+            "c":"(-12,12,-12)",
+            "d":"(-12,-12,-12)"
+          },
+"correctAnswer":"a"},
+{"question":" Q4. If the Origin is at (0,0,0) then a translation of (2,5,-4) translates the origin to:  ",
+"answers":{
+            "a":"(2,5,-4)",
+            "b":"(2,5,4)",
+            "c":"(-2,5,4)",
+            "d":"(-2,-5,4)"
+          },
+"correctAnswer":"c"}
+
 ]

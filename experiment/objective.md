@@ -1,0 +1,1 @@
+Objective of this experiment is to understand the effect of translation on Points in 2D/3D space. We also learn the matrix representation for the translation and how to use it to compute the translated point.
