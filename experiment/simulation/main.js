@@ -1,3 +1,4 @@
+"use strict";
 import * as THREE from "https://threejsfundamentals.org/threejs/resources/threejs/r115/build/three.module.js";
 import { OrbitControls } from "https://threejsfundamentals.org/threejs/resources/threejs/r115/examples/jsm/controls/OrbitControls.js";
 import { MOUSE } from "https://unpkg.com/three@0.128.0/build/three.module.js";
@@ -7,21 +8,21 @@ import {
     createOctahedron,
     createTetrahedron,
 } from "./js/shapes.js";
-import { Dot } from "./js/point.js";
+import { dot } from "./js/point.js";
 
-const move_button = document.getElementById("move-button");
-const modalbutton1 = document.querySelector(".buttonisprimary");
-const modalbutton2 = document.querySelector(".buttonissecondary");
-let lock_vertices = document.getElementById("lock-vertices-cb");
-let xy_grid = document.getElementById("xy-grid-cb");
-let yz_grid = document.getElementById("yz-grid-cb");
-let xz_grid = document.getElementById("xz-grid-cb");
+const moveButton = document.getElementById("move-button");
+const modalbutton1 = document.querySelector(".edit-button");
+const modalbutton2 = document.querySelector(".add-button");
+let lockVertices = document.getElementById("lock-vertices-cb");
+let xyGrid = document.getElementById("xy-grid-cb");
+let yzGrid = document.getElementById("yz-grid-cb");
+let xzGrid = document.getElementById("xz-grid-cb");
 let container = document.getElementById("canvas-main");
-let modal_add = document.getElementById("add-modal");
-let modal_edit = document.getElementById("edit-modal");
+let modalAdd = document.getElementById("add-modal");
+let modalEdit = document.getElementById("edit-modal");
 let initial_pos = [3, 3, 3];
-let span_edit_modal = document.getElementsByClassName("close")[0];
-var slider = document.getElementById("slider");
+let spanEditModal = document.getElementsByClassName("close")[0];
+let slider = document.getElementById("slider");
 slider.addEventListener("input", movePoint);
 document.getElementById("slider").max =
     document.getElementById("finalx").value - initial_pos[0];
@@ -32,17 +33,17 @@ slider.step =
     document.getElementById("frames").value;
 
 let final_pos = [
-    document.getElementById("finalx").value,
-    document.getElementById("finaly").value,
-    document.getElementById("finalz").value,
+    parseFloat(document.getElementById("finalx").value),
+    parseFloat(document.getElementById("finaly").value),
+    parseFloat(document.getElementById("finalz").value),
 ];
 
 let trans_matrix = new THREE.Matrix4();
 trans_matrix.set(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
 let frames = document.getElementById("frames").value;
-let deletebutton = document.getElementById("deletebutton");
 let scene,
+    PI = 3.141592653589793,
     camera,
     renderer,
     orbit,
@@ -50,25 +51,22 @@ let scene,
     xygrid = [],
     yzgrid = [],
     xzgrid = [],
-    dragx = [],
-    dragy = [],
+    dragX = [],
+    dragY = [],
     dragz = [],
     lock = 0,
-    dir = [],
-    two_plane,
-    two_geometry,
-    first_time = 1,
-    is_2D = 0,
+    dir = [],    
+    
     arrowHelper = [];
 let addModal = document.getElementById("add-modal");
-let span_add_modal = document.getElementsByClassName("close")[1];
+let spanAddModal = document.getElementsByClassName("close")[1];
 
-span_add_modal.onclick = function() {
+spanAddModal.onclick = function () {
     addModal.style.display = "none";
 };
-lock_vertices.addEventListener("click", () => {
-    if (lock_vertices.checked) {
-        lock = 1;
+lockVertices.addEventListener("click", () => {
+    if (lockVertices.checked) {
+        lock = 1;  
         orbit.mouseButtons = {
             LEFT: MOUSE.PAN,
             MIDDLE: MOUSE.DOLLY,
@@ -91,22 +89,23 @@ lock_vertices.addEventListener("click", () => {
 });
 
 
-xy_grid.addEventListener("click", () => {
-    if (xy_grid.checked) {
-        var grid = new THREE.GridHelper(size, divisions);
-        var vector3 = new THREE.Vector3(0, 0, 1);
+xyGrid.addEventListener("click", () => {
+    if (xyGrid.checked) {
+        let grid = new THREE.GridHelper(size, divisions);
+        let vector3 = new THREE.Vector3(0, 0, 1);
         grid.lookAt(vector3);
         xygrid.push(grid);
         scene.add(xygrid[0]);
-    } else {
+    } 
+    else {
         scene.remove(xygrid[0]);
         xygrid.pop();
     }
 });
-xz_grid.addEventListener("click", () => {
-    if (xz_grid.checked) {
-        var grid = new THREE.GridHelper(size, divisions);
-        grid.geometry.rotateZ(Math.PI / 2);
+xzGrid.addEventListener("click", () => {
+    if (xzGrid.checked) {
+        let grid = new THREE.GridHelper(size, divisions);
+        grid.geometry.rotateZ(PI / 2);
         xzgrid.push(grid);
         scene.add(xzgrid[0]);
     } else {
@@ -114,10 +113,10 @@ xz_grid.addEventListener("click", () => {
         xzgrid.pop();
     }
 });
-yz_grid.addEventListener("click", () => {
-    if (yz_grid.checked) {
-        var grid = new THREE.GridHelper(size, divisions);
-        var vector3 = new THREE.Vector3(0, 1, 0);
+yzGrid.addEventListener("click", () => {
+    if (yzGrid.checked) {
+        let grid = new THREE.GridHelper(size, divisions);
+        let vector3 = new THREE.Vector3(0, 1, 0);
         grid.lookAt(vector3);
         yzgrid.push(grid);
         scene.add(yzgrid[0]);
@@ -130,13 +129,13 @@ yz_grid.addEventListener("click", () => {
 let buttons = document.getElementsByTagName("button");
 const size = 50;
 const divisions = 25;
-document.getElementById("add-shape-btn").onclick = function() {
+document.getElementById("add-shape-btn").onclick = function () {
     addModal.style.display = "block";
     modalbutton2.addEventListener("click", () => {
         let xcoord = document.getElementById("x1").value;
         let ycoord = document.getElementById("y1").value;
         let zcoord = document.getElementById("z1").value;
-        no_of_shapes++;
+        noOfShapes++;
         if (document.getElementById("shape-add-dropdown").value === "Cube") {
             createCube(
                 xcoord,
@@ -145,9 +144,9 @@ document.getElementById("add-shape-btn").onclick = function() {
                 shapes,
                 scene,
                 point,
-                shapevertex,
-                dragx,
-                dragy,
+                shapeVertex,
+                dragX,
+                dragY,
                 dragz
             );
         }
@@ -159,9 +158,9 @@ document.getElementById("add-shape-btn").onclick = function() {
                 shapes,
                 scene,
                 point,
-                shapevertex,
-                dragx,
-                dragy,
+                shapeVertex,
+                dragX,
+                dragY,
                 dragz
             );
         }
@@ -173,9 +172,9 @@ document.getElementById("add-shape-btn").onclick = function() {
                 shapes,
                 scene,
                 point,
-                shapevertex,
-                dragx,
-                dragy,
+                shapeVertex,
+                dragX,
+                dragY,
                 dragz
             );
         }
@@ -189,9 +188,9 @@ document.getElementById("add-shape-btn").onclick = function() {
                 shapes,
                 scene,
                 point,
-                shapevertex,
-                dragx,
-                dragy,
+                shapeVertex,
+                dragX,
+                dragY,
                 dragz
             );
         }
@@ -209,9 +208,9 @@ let shift = new THREE.Vector3();
 let isDragging = false;
 let dragObject;
 let point = [];
-let shapevertex = [];
-let dot_list = [];
-let no_of_shapes = 0;
+let shapeVertex = [];
+let dotList = [];
+let noOfShapes = 0;
 
 document.addEventListener("dblclick", ondblclick, false);
 // double click
@@ -233,27 +232,27 @@ function ondblclick(event) {
             intersects[0].object.position.z
         );
         scene.add(line);
-        document.getElementById("delete-shape-btn").onclick = function() {
+        document.getElementById("delete-shape-btn").onclick = function () {
             scene.remove(line);
             for (let i = 0; i < intersects.length; i++) {
                 scene.remove(intersects[i].object);
-                no_of_shapes--;
+                noOfShapes--;
             }
         };
 
-        document.getElementById("edit-shape-btn").onclick = function() {
+        document.getElementById("edit-shape-btn").onclick = function () {
             document.getElementById("edit-modal").style.display = "block";
             document
-                .querySelector(".buttonisprimary")
+                .querySelector(".edit-button")
                 .addEventListener("click", () => {
                     for (let i = 0; i < intersects.length; i++) {
                         scene.remove(intersects[i].object);
                         scene.remove(line);
                     }
-                    var xcoord = document.getElementById("x").value;
-                    var ycoord = document.getElementById("y").value;
-                    var zcoord = document.getElementById("z").value;
-                    no_of_shapes++;
+                    let xcoord = document.getElementById("x").value;
+                    let ycoord = document.getElementById("y").value;
+                    let zcoord = document.getElementById("z").value;
+                    noOfShapes++;
                     if (document.querySelector("select").value === "Cube") {
                         createCube(
                             xcoord,
@@ -262,9 +261,9 @@ function ondblclick(event) {
                             shapes,
                             scene,
                             point,
-                            shapevertex,
-                            dragx,
-                            dragy,
+                            shapeVertex,
+                            dragX,
+                            dragY,
                             dragz
                         );
                     }
@@ -276,9 +275,9 @@ function ondblclick(event) {
                             shapes,
                             scene,
                             point,
-                            shapevertex,
-                            dragx,
-                            dragy,
+                            shapeVertex,
+                            dragX,
+                            dragY,
                             dragz
                         );
                     }
@@ -290,9 +289,9 @@ function ondblclick(event) {
                             shapes,
                             scene,
                             point,
-                            shapevertex,
-                            dragx,
-                            dragy,
+                            shapeVertex,
+                            dragX,
+                            dragY,
                             dragz
                         );
                     }
@@ -304,9 +303,9 @@ function ondblclick(event) {
                             shapes,
                             scene,
                             point,
-                            shapevertex,
-                            dragx,
-                            dragy,
+                            shapeVertex,
+                            dragX,
+                            dragY,
                             dragz
                         );
                     }
@@ -316,8 +315,8 @@ function ondblclick(event) {
     }
 }
 
-span_edit_modal.onclick = function() {
-    modal_edit.style.display = "none";
+spanEditModal.onclick = function () {
+    modalEdit.style.display = "none";
 };
 
 document.addEventListener("pointermove", (event) => {
@@ -338,9 +337,9 @@ document.addEventListener("pointermove", (event) => {
                     planeIntersect.z + shift.z
                 );
                 shapes[i].geometry.verticesNeedUpdate = true;
-                shapevertex[i].position.set(
-                    planeIntersect.x + shift.x - dragx[i],
-                    planeIntersect.y + shift.y - dragy[i],
+                shapeVertex[i].position.set(
+                    planeIntersect.x + shift.x - dragX[i],
+                    planeIntersect.y + shift.y - dragY[i],
                     planeIntersect.z + shift.z - dragz[i]
                 );
             }
@@ -366,9 +365,12 @@ document.addEventListener("pointerdown", () => {
             raycaster.setFromCamera(mouse, camera);
             raycaster.ray.intersectPlane(plane, planeIntersect);
             let position = new THREE.Vector3(
-                shapevertex[0].position.x,
-                shapevertex[0].position.y,
-                shapevertex[0].position.z
+                shapeVertex
+[0].position.x,
+                shapeVertex
+[0].position.y,
+                shapeVertex
+[0].position.z
             );
             shift.subVectors(position, planeIntersect);
             isDragging = true;
@@ -380,18 +382,18 @@ document.addEventListener("pointerup", () => {
     isDragging = false;
     dragObject = null;
 });
-move_button.addEventListener("click", () => {
-    let x = document.getElementById("quantityx").value;
-    let y = document.getElementById("quantityy").value;
-    let z = document.getElementById("quantityz").value;
+moveButton.addEventListener("click", () => {
+    let x = parseFloat(document.getElementById("quantityx").value);
+    let y = parseFloat(document.getElementById("quantityy").value);
+    let z = parseFloat(document.getElementById("quantityz").value);
     let translate_M = new THREE.Matrix4();
     translate_M.makeTranslation(
-        x - dot_list[0].geometry.getAttribute("position").array[0],
-        y - dot_list[0].geometry.getAttribute("position").array[1],
-        z - dot_list[0].geometry.getAttribute("position").array[2]
+        x - dotList[0].geometry.getAttribute("position").array[0],
+        y - dotList[0].geometry.getAttribute("position").array[1],
+        z - dotList[0].geometry.getAttribute("position").array[2]
     );
-    dot_list[0].geometry.applyMatrix4(translate_M);
-    dot_list[0].geometry.verticesNeedUpdate = true;
+    dotList[0].geometry.applyMatrix4(translate_M);
+    dotList[0].geometry.verticesNeedUpdate = true;
     trans_matrix.multiply(translate_M);
     initial_pos[0] = x;
     initial_pos[1] = y;
@@ -400,12 +402,12 @@ move_button.addEventListener("click", () => {
 
 
 function movePoint(e) {
-    var target = e.target ? e.target : e.srcElement;
+    let target = e.target ? e.target : e.srcElement;
 
     let p = new THREE.Vector3(
-        dot_list[0].geometry.getAttribute("position").array[0],
-        dot_list[0].geometry.getAttribute("position").array[1],
-        dot_list[0].geometry.getAttribute("position").array[2]
+        dotList[0].geometry.getAttribute("position").array[0],
+        dotList[0].geometry.getAttribute("position").array[1],
+        dotList[0].geometry.getAttribute("position").array[2]
     );
     let tx =
         initial_pos[0] +
@@ -428,19 +430,19 @@ function movePoint(e) {
 
     let translate_M = new THREE.Matrix4();
     translate_M.makeTranslation(tx, ty, tz);
-    dot_list[0].geometry.applyMatrix4(translate_M);
-    dot_list[0].geometry.verticesNeedUpdate = true;
+    dotList[0].geometry.applyMatrix4(translate_M);
+    dotList[0].geometry.verticesNeedUpdate = true;
     trans_matrix.multiply(translate_M);
     if (target.value <= 0) {
         trans_matrix.set(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
 
     document.getElementById("quantityx").value =
-        dot_list[0].geometry.getAttribute("position").array[0];
+        dotList[0].geometry.getAttribute("position").array[0];
     document.getElementById("quantityy").value =
-        dot_list[0].geometry.getAttribute("position").array[1];
+        dotList[0].geometry.getAttribute("position").array[1];
     document.getElementById("quantityz").value =
-        dot_list[0].geometry.getAttribute("position").array[2];
+        dotList[0].geometry.getAttribute("position").array[2];
 
     document.getElementById("matrix-00").value = trans_matrix.elements[0];
     document.getElementById("matrix-01").value = trans_matrix.elements[1];
@@ -463,25 +465,25 @@ function movePoint(e) {
     document.getElementById("matrix-33").value = trans_matrix.elements[15];
 }
 
-document.getElementById("finalx").onchange = function() {
+document.getElementById("finalx").onchange = function () {
     let new_value = document.getElementById("finalx").value; // new value
-    let old_position = dot_list[0].geometry.getAttribute("position").array[0];
+    let old_position = dotList[0].geometry.getAttribute("position").array[0];
     let new_position =
         initial_pos[0] +
         ((old_position - initial_pos[0]) * (new_value - initial_pos[0])) /
         (final_pos[0] - initial_pos[0]);
     let translate_M = new THREE.Matrix4();
     translate_M.makeTranslation(new_position - old_position, 0, 0);
-    dot_list[0].geometry.applyMatrix4(translate_M);
-    dot_list[0].geometry.verticesNeedUpdate = true;
+    dotList[0].geometry.applyMatrix4(translate_M);
+    dotList[0].geometry.verticesNeedUpdate = true;
 
     document.getElementById("quantityx").value =
-        dot_list[0].geometry.getAttribute("position").array[0];
+        dotList[0].geometry.getAttribute("position").array[0];
     final_pos[0] = new_value;
 };
-document.getElementById("finaly").onchange = function() {
+document.getElementById("finaly").onchange = function () {
     let new_value = document.getElementById("finaly").value; // new value
-    let old_position = dot_list[0].geometry.getAttribute("position").array[1];
+    let old_position = dotList[0].geometry.getAttribute("position").array[1];
     let new_position =
         initial_pos[1] +
         ((old_position - initial_pos[1]) * (new_value - initial_pos[1])) /
@@ -489,16 +491,16 @@ document.getElementById("finaly").onchange = function() {
 
     let translate_M = new THREE.Matrix4();
     translate_M.makeTranslation(0, new_position - old_position, 0);
-    dot_list[0].geometry.applyMatrix4(translate_M);
-    dot_list[0].geometry.verticesNeedUpdate = true;
+    dotList[0].geometry.applyMatrix4(translate_M);
+    dotList[0].geometry.verticesNeedUpdate = true;
 
     document.getElementById("quantityy").value =
-        dot_list[0].geometry.getAttribute("position").array[1];
+        dotList[0].geometry.getAttribute("position").array[1];
     final_pos[1] = new_value;
 };
-document.getElementById("finalz").onchange = function() {
+document.getElementById("finalz").onchange = function () {
     let new_value = document.getElementById("finalz").value; // new value
-    let old_position = dot_list[0].geometry.getAttribute("position").array[2];
+    let old_position = dotList[0].geometry.getAttribute("position").array[2];
     let new_position =
         initial_pos[2] +
         ((old_position - initial_pos[2]) * (new_value - initial_pos[2])) /
@@ -506,18 +508,18 @@ document.getElementById("finalz").onchange = function() {
 
     let translate_M = new THREE.Matrix4();
     translate_M.makeTranslation(0, 0, new_position - old_position);
-    dot_list[0].geometry.applyMatrix4(translate_M);
-    dot_list[0].geometry.verticesNeedUpdate = true;
+    dotList[0].geometry.applyMatrix4(translate_M);
+    dotList[0].geometry.verticesNeedUpdate = true;
 
     document.getElementById("quantityz").value =
-        dot_list[0].geometry.getAttribute("position").array[2];
+        dotList[0].geometry.getAttribute("position").array[2];
     final_pos[2] = new_value;
 };
-document.getElementById("frames").onchange = function() {
+document.getElementById("frames").onchange = function () {
     let new_value = document.getElementById("frames").value; // new value
     let cur_pos = new Array();
     for (let i = 0; i < 3; i++) {
-        cur_pos[i] = dot_list[0].geometry.getAttribute("position").array[i];
+        cur_pos[i] = dotList[0].geometry.getAttribute("position").array[i];
     }
 
     document.getElementById("quantityx").value =
@@ -536,8 +538,8 @@ document.getElementById("frames").onchange = function() {
         document.getElementById("quantityy").value - cur_pos[1],
         document.getElementById("quantityz").value - cur_pos[2]
     );
-    dot_list[0].geometry.applyMatrix4(translate_M);
-    dot_list[0].geometry.verticesNeedUpdate = true;
+    dotList[0].geometry.applyMatrix4(translate_M);
+    dotList[0].geometry.verticesNeedUpdate = true;
 
     slider.step =
         (document.getElementById("slider").max -
@@ -556,7 +558,7 @@ camera = new THREE.PerspectiveCamera(
     1,
     1000
 );
-let init = function() {
+let init = function () {
     camera.position.z = 5;
     camera.position.x = 2;
     camera.position.y = 2;
@@ -580,7 +582,7 @@ let init = function() {
     for (let i = 0; i < 6; i++) {
         scene.add(arrowHelper[i]);
     }
-    let PointGeometry = Dot(scene, dot_list, initial_pos);
+    let PointGeometry = dot(scene, dotList, initial_pos);
     renderer = new THREE.WebGLRenderer();
     let w = container.offsetWidth;
     let h = container.offsetHeight;
@@ -594,7 +596,7 @@ let init = function() {
     orbit.target.set(0, 0, 0);
     orbit.enableDamping = true;
 };
-let mainLoop = function() {
+let mainLoop = function () {
     renderer.render(scene, camera);
     requestAnimationFrame(mainLoop);
 };
