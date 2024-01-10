@@ -1,36 +1,90 @@
-[
-{"question":" Matrix( (1,0,0,5), (0,1,0,-3), (0,0,1,6), (0,0,0,1) ) Q1. When the following translation matrix is applied to point (10,10,10), it becomes ",
-"answers":{
-            "a":"(5,7,4)",
-            "b":"(15,7,16)",
-            "c":"(15,7,4)",
-            "d":"(15,13,16)"
+{
+  "version": 2.0,
+  "questions": [
+      {
+          "question": "1. What is the primary purpose of the translation transformation in computer graphics?",
+          "answers": {
+              "a": "Scaling objects",
+              "b": "Rotating objects",
+              "c": "Repositioning objects",
+              "d": "Changing color of objects"
           },
-"correctAnswer":"a"},
-{"question":" Q2. If the point (-10,14,20) is translated according to the vector (-10,2,8), it becomes ",
-"answers":{
-            "a":"(-20,16,28)",
-            "b":"(0,16,28)",
-            "c":"(0,16,12)",
-            "d":"(-20,16,12)"
+          "correctAnswer": "c",
+          "explanations": {
+              "a": "Scaling involves resizing objects.",
+              "b": "Rotation involves turning objects around a point.",
+              "c": "Correct! Translation is primarily about repositioning objects.",
+              "d": "Color change is not related to translation transformations."
           },
-"correctAnswer":"c"}, 
-
-{"question":" Q3. Identify the translation vector v which transforms point A (1,1,5) to point B (-11,13,-7). ",
-"answers":{
-            "a":"(12,-12,12)",
-            "b":"(-12,12,12)",
-            "c":"(-12,12,-12)",
-            "d":"(-12,-12,-12)"
+          "difficulty": "beginner"
+      },
+      {
+          "question": "2. In 3D graphics, what does a translation matrix represent?",
+          "answers": {
+              "a": "Scaling transformation",
+              "b": "Rotation transformation",
+              "c": "Repositioning transformation",
+              "d": "Color transformation"
           },
-"correctAnswer":"a"},
-{"question":" Q4. If the Origin is at (0,0,0) then a translation of (2,5,-4) translates the origin to:  ",
-"answers":{
-            "a":"(2,5,-4)",
-            "b":"(2,5,4)",
-            "c":"(-2,5,4)",
-            "d":"(-2,-5,4)"
+          "correctAnswer": "c",
+          "explanations": {
+              "a": "Scaling matrices are different from translation matrices.",
+              "b": "Rotation matrices are distinct from translation matrices.",
+              "c": "Correct! A translation matrix represents repositioning in 3D space.",
+              "d": "Color transformation is not associated with translation matrices."
           },
-"correctAnswer":"c"}
-
-]
+          "difficulty": "beginner"
+      },
+      {
+          "question": "3. What happens when you apply a translation matrix to a point in 3D space?",
+          "answers": {
+              "a": "Scaling the point",
+              "b": "Rotating the point",
+              "c": "Repositioning the point",
+              "d": "Changing the color of the point"
+          },
+          "correctAnswer": "c",
+          "explanations": {
+              "a": "Scaling matrices are responsible for resizing, not translation.",
+              "b": "Rotation matrices are used for turning points, not translation.",
+              "c": "Correct! A translation matrix repositions the point in 3D space.",
+              "d": "Color change is unrelated to translation matrices."
+          },
+          "difficulty": "intermediate"
+      },
+      {
+          "question": "4. What are the elements in a 3D translation matrix that control the repositioning along each axis?",
+          "answers": {
+              "a": "Elements in the first row",
+              "b": "Elements in the second row",
+              "c": "Elements in the third column",
+              "d": "Elements in the fourth column"
+          },
+          "correctAnswer": "d",
+          "explanations": {
+              "a": "The first row typically represents different information.",
+              "b": "The second row is not used for controlling repositioning.",
+              "c": "The third column does not control repositioning along each axis.",
+              "d": "Correct! Elements in the fourth column control repositioning along each axis in a 3D translation matrix."
+          },
+          "difficulty": "intermediate"
+      },
+      {
+          "question": "5. What does the translation matrix represent when modifying its elements?",
+          "answers": {
+              "a": "Changing object color",
+              "b": "Rotating objects",
+              "c": "Adjusting object size",
+              "d": "Altering object position"
+          },
+          "correctAnswer": "d",
+          "explanations": {
+              "a": "Color change is unrelated to modifications in the translation matrix.",
+              "b": "Rotation is not controlled by adjustments in the translation matrix.",
+              "c": "Size adjustment is not represented by changes in the translation matrix.",
+              "d": "Correct! Modifying elements in the translation matrix alters the position of objects."
+          },
+          "difficulty": "advanced"
+      }
+  ]
+}
