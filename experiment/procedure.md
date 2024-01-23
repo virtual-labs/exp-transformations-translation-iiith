@@ -1,5 +1,22 @@
-1. This experiment introduces the concept of the translation transformation.  
-2. The point has a translation applied to it. Move the slider at the bottom to watch the point move to its new location.  
-3. The tree has a node for the transformation applied to the point. This node shows the translation distances along each axis. As the slider is moved, the transformation animates between the starting and ending points.  
-4. The translation matrix T, being applied to the point is also shown. Edit the translation distances and notice how this matrix gets changed.  
-5. Transformations can also be interpreted as a modification of the co-ordinate system, while keeping the point in its original place. You can switch to this behavior at any time by checking the Transform co-ordinate systems checkbox under the Display tab. Use it to compare how the transformation works in both cases.
+1. **Introduction to Translation:**
+   - Familiarize yourself with the fundamental concept of translation transformation in computer graphics.
+
+2. **Interactive Point Translation:**
+   - Explore the application of translation on a point by utilizing the interactive slider located at the bottom of the simulation.
+   - Observe how the point smoothly transitions to its new location as the slider is adjusted.
+
+3. **Visualization of Transformation:**
+   - Examine the tree structure displaying the transformation applied to the point.
+   - The node on the tree represents the translation distances along each axis, providing a visual representation of the transformation process.
+   - Adjust the slider to witness an animated transformation between the initial and final points.
+
+4. **Matrix Representation Display:**
+   - View the translation matrix \(T\) that is being applied to the point.
+   - Experiment with modifying the translation distances and observe how the matrix dynamically adjusts to reflect the changes.
+
+5. **Understanding Co-ordinate Systems:**
+   - Recognize that transformations can also be interpreted as a modification of the coordinate system, all while keeping the point in its original place.
+   - Access the "Transform Coordinate Systems" checkbox under the Display tab to switch between standard translation and co-ordinate system modification.
+   - Compare and contrast how the transformation behaves in both scenarios to gain a comprehensive understanding.
+
+By following this procedure, you will gain hands-on experience with translation transformations, matrix representations, and the interplay between points and coordinate systems in a visual and interactive manner.
