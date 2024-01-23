@@ -1,5 +1,3 @@
-### Procedure
-
 1. **Introduction to Translation:**
    - Familiarize yourself with the fundamental concept of translation transformation in computer graphics.
 

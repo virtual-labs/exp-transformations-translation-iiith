@@ -1,5 +1,3 @@
-### Theory of Translation in 3D Space
-
 #### Introduction to Translation:
 Translation is a fundamental transformation in computer graphics that involves displacing objects from one position to another within a three-dimensional coordinate space. It plays a crucial role in repositioning graphical elements to achieve desired visual effects.
 
