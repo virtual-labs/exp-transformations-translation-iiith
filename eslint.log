@@ -1,0 +1,62 @@
+
+/home/runner/work/exp-transformations-translation-iiith/exp-transformations-translation-iiith/experiment/simulation/js/js/VRMLloader.js
+   61:35  warning  'lines' is defined but never used                                no-unused-vars
+   61:42  warning  'scene' is defined but never used                                no-unused-vars
+   70:39  warning  Unnecessary escape character: \-                                 no-useless-escape
+   70:49  warning  Unnecessary escape character: \.                                 no-useless-escape
+   71:40  warning  Unnecessary escape character: \.                                 no-useless-escape
+   71:42  warning  Unnecessary escape character: \+                                 no-useless-escape
+   71:57  warning  Unnecessary escape character: \.                                 no-useless-escape
+   71:59  warning  Unnecessary escape character: \+                                 no-useless-escape
+   71:74  warning  Unnecessary escape character: \.                                 no-useless-escape
+   71:76  warning  Unnecessary escape character: \+                                 no-useless-escape
+  212:36  warning  Unnecessary escape character: \[                                 no-useless-escape
+  214:36  warning  'angles' is defined but never used                               no-unused-vars
+  214:44  warning  'colors' is defined but never used                               no-unused-vars
+  306:36  warning  'ind' is already defined                                         no-redeclare
+  328:26  warning  'color' is not defined                                           no-undef
+  334:43  warning  'color' is not defined                                           no-undef
+  447:38  warning  'result' is not defined                                          no-undef
+  469:27  warning  Expected a conditional expression and instead saw an assignment  no-cond-assign
+  548:22  warning  'object' is already defined                                      no-redeclare
+  643:30  warning  's' is already defined                                           no-redeclare
+  689:36  warning  'i' is already defined                                           no-redeclare
+  689:43  warning  'j' is already defined                                           no-redeclare
+  742:32  warning  'i' is already defined                                           no-redeclare
+  744:30  warning  'child' is already defined                                       no-redeclare
+  767:38  warning  's' is already defined                                           no-redeclare
+  775:38  warning  't' is already defined                                           no-redeclare
+  804:28  warning  'i' is already defined                                           no-redeclare
+  804:35  warning  'l' is already defined                                           no-redeclare
+  806:26  warning  'child' is already defined                                       no-redeclare
+
+/home/runner/work/exp-transformations-translation-iiith/exp-transformations-translation-iiith/experiment/simulation/js/js/mech_arm.js
+  5:102  warning  'palm_pos' is defined but never used  no-unused-vars
+
+/home/runner/work/exp-transformations-translation-iiith/exp-transformations-translation-iiith/experiment/simulation/js/js/shapes.js
+  24:15  warning  'geometry' is assigned a value but never used  no-unused-vars
+
+/home/runner/work/exp-transformations-translation-iiith/exp-transformations-translation-iiith/experiment/simulation/js/main.js
+   14:7   warning  'modalbutton1' is assigned a value but never used           no-unused-vars
+   21:5   warning  'modalAdd' is assigned a value but never used               no-unused-vars
+   58:5   warning  'dir' is assigned a value but never used                    no-unused-vars
+  129:5   warning  'buttons' is assigned a value but never used                no-unused-vars
+  206:5   warning  'pIntersect' is assigned a value but never used             no-unused-vars
+  209:5   warning  'dragObject' is assigned a value but never used             no-unused-vars
+  213:5   warning  'noOfShapes' is assigned a value but never used             no-unused-vars
+  357:13  warning  Unexpected lexical declaration in case block                no-case-declarations
+  358:13  warning  Unexpected lexical declaration in case block                no-case-declarations
+  359:13  warning  Unexpected lexical declaration in case block                no-case-declarations
+  367:13  warning  Unexpected lexical declaration in case block                no-case-declarations
+  369:1   warning  Unexpected newline between object and [ of property access  no-unexpected-multiline
+  371:1   warning  Unexpected newline between object and [ of property access  no-unexpected-multiline
+  373:1   warning  Unexpected newline between object and [ of property access  no-unexpected-multiline
+  565:11  warning  'gridHelper' is assigned a value but never used             no-unused-vars
+  566:11  warning  'count' is assigned a value but never used                  no-unused-vars
+  585:9   warning  'PointGeometry' is assigned a value but never used          no-unused-vars
+
+/home/runner/work/exp-transformations-translation-iiith/exp-transformations-translation-iiith/experiment/simulation/js/shapes.js
+  24:15  warning  'geometry' is assigned a value but never used  no-unused-vars
+
+✖ 49 problems (0 errors, 49 warnings)
+
