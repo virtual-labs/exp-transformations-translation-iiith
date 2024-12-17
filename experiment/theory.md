@@ -2,7 +2,7 @@
 Translation is a fundamental transformation in computer graphics that involves displacing objects from one position to another within a three-dimensional coordinate space. It plays a crucial role in repositioning graphical elements to achieve desired visual effects.
 
 #### Translation in 3D Space:
-In 3D graphics, the translation of a point (x, y, z) involves moving it along the x, y, and z axes by specific amounts represented by the translation vector (v_x, v_y, v_z). The new coordinates (x', y', z') after translation can be expressed mathematically using matrix multiplciation.
+In 3D graphics, the translation of a point (x, y, z) involves moving it along the x, y, and z axes by specific amounts represented by the translation vector (v<sub>x</sub>, v<sub>y</sub>, v<sub>z</sub>). The new coordinates (x', y', z') after translation can be expressed mathematically using matrix multiplciation.
 
 #### Matrix Representation of Translation in 3D:
 The translation operation in 3D space can be efficiently represented using a 4x4 matrix T as follows:
