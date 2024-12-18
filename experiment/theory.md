@@ -7,11 +7,11 @@ In 3D graphics, the translation of a point (x, y, z) involves moving it along th
 #### Matrix Representation of Translation in 3D:
 The translation operation in 3D space can be efficiently represented using a 4x4 matrix T as follows:
 
-<img src="/images/translation-matrix.png">
+<img src="./images/translation-matrix.png">
 
 #### Matrix Multiplication for Translation:
 To apply the translation matrix T to a point (x, y, z), the matrix multiplication is performed as follows:
 
-<img src="/images/point_translation.png">
+<img src="./images/point_translation.png">
 
 The resulting vector (x', y', z', 1) contains the translated coordinates. The additional fourth element, 1, ensures compatibility with the homogeneous coordinate system.
