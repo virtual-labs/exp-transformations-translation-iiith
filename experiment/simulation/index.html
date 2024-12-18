@@ -11,47 +11,133 @@
 </head>
 
 <body class="page" style="margin: 1rem">
-<div class="columns is-centered column">
-    <div class="v-collapsible-instruction-container v-instruction-container">
-      <div id="instruction-title" class="v-collapsible is-size-5">Instructions</div>
-      <div id="procedure-message" class="v-content" style="text-align: left; padding-left: 10%; padding-right: 10%;">
-        <ul style="list-style: disc;">
-                <li class="instr-font">
-                    Translate the point with a slider to check the final coordinates to which it moved and compare it
-                    with the final coordinates displayed in the “Final Coordinates” Section.
-                </li>
-                <li class="instr-font">
-                    View the Translation Matrix to see the changes while translating the point
-                </li>
-                <li class="instr-font">
-                    Change the final coordinates and no of frames and visualize the movement of the point with the help
-                    of translation matrix.
-                </li>
-                <li class="instr-font">
-                    We can edit the final coordinates and no of frames even if the point is not completely
-                    translated.Observe the change in position of point and slider length in this situation.
-                </li>
-                <li class="instr-font">
-                    You can add new shapes by clicking on the “Add” button with options to select the type of shape and
-                    position. Multiple shapes may be added.
-                </li>
-                <li class="instr-font">
-                    Double click on the object to select it and enable the edit and delete buttons. Clicking on the edit
-                    button allows you to edit the object’s properties. Similarly, clicking on the delete button deletes
-                    the selected object.
-                </li>
-                <li class="instr-font">
-                    Check the corresponding checkboxes to display the xy-grid, yz-grid and xz-grid and similarly uncheck
-                    to remove them from view.
-                </li>
-                <li class="instr-font">
-                    Enabling the Lock Vertices option allows you to translate the whole simulation on left-clicking and
-                    dragging the cursor.
-                </li>
-        </ul>
+    <section class="columns is-centered is-flex column">
+        <div id="axis-labels"
+            style="position: absolute; top: 100px; right: 10px; padding: 10px; border-radius: 5px; color: white;">
+            <div><span style="color: rgb(236, 236, 240);">Axis-labels:</span></div>
+            <div><span style="color: red;">X-axis</span></div>
+            <div><span style="color: yellow;">Y-axis</span></div>
+            <div><span style="color: blue;">Z-axis</span></div>
+        </div>
+
+
+        <div class="v-collapsible-instruction-container">
+            <div class="v-collapsible" id="toggle-instructions"
+                style="cursor: pointer; background: #f1f1f1; padding: 10px; border-radius: 5px;">
+                <strong>Instructions</strong>
+            </div>
+            <div id="procedure-message" class="v-content"
+                style="display: none; background: #f9f9f9; padding: 15px 15px 15px 30px; border-radius: 5px;">
+                <ol>
+                    <li class="instr-font">
+                        <strong style="font-size: 19px;">Mouse Controls</strong>:
+                        <ul style="list-style-type: disc;padding-left: 20px;">
+                            <li><strong>Left Mouse</strong>: Used for translating (shifting) the entire simulation by
+                                left-clicking and dragging
+                                the cursor.</li>
+                            <li><strong>Right Mouse</strong>: Used for rotating the simulation by right-clicking and
+                                dragging the cursor.</li>
+                            <li><strong>Middle Mouse</strong>: Used for zooming in and out of the simulation by
+                                scrolling.</li>
+                        </ul>
+
+                    </li>
+                    <li class="instr-font">
+                        <strong style="font-size: 19px;">Lock Options</strong>:
+                        <ul style="list-style-type: disc;padding-left: 20px;">
+                            <li><strong>Lock Graph</strong>: Disables the translation (shifting) of the simulation when
+                                enabled.
+                            </li>
+                            <li><strong>Lock Zoom</strong>: Prevents zooming functionality when enabled, disabling the
+                                middle
+                                mouse button.</li>
+                            <li><strong>Lock Rotate</strong>: Disables the rotation of the simulation when enabled,
+                                disabling
+                                the right mouse button.</li>
+                        </ul>
+                    </li>
+                    <li class="instr-font">
+                        <strong style="font-size: 19px;">Shape Controls</strong>:
+                        <ul style="list-style-type: disc;padding-left: 20px;">
+                            <li>Click the <strong style="color: #3298dc;font-size: 18px;">Add</strong> button to open a
+                                modal where you can select a shape type and
+                                specify the coordinates for positioning.
+                                <ul style="list-style-type: disc;padding-left: 20px;">
+                                    <li>
+                                        <strong>Note</strong>: Do not create any two shapes with the same coordinates.
+                                    </li>
+
+                                </ul>
+                            </li>
+                            <li>Click the <strong style="color: #970473;font-size: 18px;">Select</strong> button to
+                                choose a shape, which will highlight it with a
+                                spherical outline in the scene for easy identification.</li>
+                            <ul style="list-style-type: disc;padding-left: 20px;">
+
+                                <li>After selecting, click the <strong
+                                        style="color: #48c774; font-size: 18px;">Edit</strong> button to modify the
+                                    shape's properties or position.</li>
+                                <li> After selecting, click the <strong
+                                        style="color: #f14668;font-size: 18px;">Delete</strong> button to remove the
+                                    shape
+                                    from the scene.</li>
+
+                            </ul>
+                        </ul>
+                    </li>
+                    <li class="instr-font">
+                        <strong style="font-size: 19px;">Grid Options</strong>: Check the corresponding checkboxes to
+                        display the
+                        <strong>XY-grid</strong>, <strong>YZ-grid</strong>, and <strong>XZ-grid</strong>, and uncheck
+                        them to
+                        remove them from view.
+                    </li>
+                    <li class="instr-font">
+                        <strong style="font-size: 19px;">Frames</strong>: Set the number of frames to control how
+                        smoothly the object moves from one
+                        point to another.
+                    </li>
+                    <li class="instr-font">
+                        <strong style="font-size: 19px;">Slider</strong>: Adjusts the translation scale, moving objects
+                        by updating their positions and
+                        transformation matrix based on its value.
+                    </li>
+                    <li class="instr-font">
+                        <strong style="font-size: 19px;">Translation Vector</strong>: Defines how much to move the shape
+                        along the <strong>X</strong>,
+                        <strong>Y</strong>, and <strong>Z</strong> axes in 3D space.
+                    </li>
+                </ol>
             </div>
         </div>
-    </div>
+
+
+
+        <script>
+            // Select relevant elements
+            const toggleInstructions = document.getElementById("toggle-instructions");
+            const procedureMessage = document.getElementById("procedure-message");
+            const axisLabels = document.getElementById("axis-labels");
+            const sliderContainer = document.querySelector(".slider-container"); // Target slider container
+
+            // Add click event to toggle instructions and adjust axis-labels and slider position
+            toggleInstructions.addEventListener("click", () => {
+                // Determine visibility of instructions using computed style
+                const isVisible = window.getComputedStyle(procedureMessage).display === "block";
+                procedureMessage.style.display = isVisible ? "none" : "block";
+
+                // Adjust the axis-labels top position
+                axisLabels.style.top = isVisible ? "100px" : "600px"; // Adjust based on desired shift
+
+                // Adjust the slider container position
+                // sliderContainer.style.top = isVisible ? "875px" : "50px"; // Adjust based on desired shift
+            });
+        </script>
+
+
+
+
+    </section>
 
     <main class="columns is-centered is-variable is-1-mobile is-flex is-flex-wrap-wrap workspace">
         <aside id="left" class="column has-text-centered is-2-desktop is-5-tablet is-5-mobile apparatus">
@@ -60,26 +146,37 @@
                     <div class="v-datalist-title">Display Settings</div>
 
                     <div id="checkboxes">
-                        <label id="lock-v" class="v-checkbox">
+                        <label class="v-checkbox">
                             <input type="checkbox" id="lock-vertices-cb">
-                            <span class="smol-font"> lock vertices </span>
+                            <span class="smol-font"> Lock Graph </span>
                         </label>
 
-                        <label id="xy-grid" class="v-checkbox">
+                        <label class="v-checkbox">
                             <input type="checkbox" id="xy-grid-cb">
                             <span class="smol-font">XY-Grid </span>
                         </label>
 
-                        <label id="yz-grid" class="v-checkbox">
+                        <label class="v-checkbox">
+                            <input type="checkbox" id="lock-zoom-cb">
+                            <span class="smol-font"> Lock Zoom </span>
+                        </label>
+
+                        <label class="v-checkbox">
                             <input type="checkbox" id="yz-grid-cb">
                             <span class="smol-font">YZ-Grid </span>
                         </label>
 
-                        <label id="xz-grid" class="v-checkbox">
+                        <label class="v-checkbox">
+                            <input type="checkbox" id="lock-rotate-cb">
+                            <span class="smol-font"> Lock Rotate </span>
+                        </label>
+
+                        <label class="v-checkbox">
                             <input type="checkbox" id="xz-grid-cb">
                             <span class="smol-font">XZ-Grid </span>
                         </label>
                     </div>
+
                 </div>
 
                 <div class="v-datalist-row" id="top-border">
@@ -98,10 +195,10 @@
                             <p class="v-datalist-title"> Edit Shape Menu</p>
                             <div class="select" style="display: inline-block; margin: 0.5rem">
                                 <select name="" id="shape-edit-dropdown" value="dropdown">
+                                    <option value="Cube">Cube</option>
                                     <option value="Tetrahedron">Tetrahedron</option>
                                     <option value="Octahedron">Octahedron</option>
                                     <option value="Dodecahedron">Dodecahedron</option>
-                                    <option value="Cube">Cube</option>
                                 </select>
                             </div>
 
@@ -127,10 +224,10 @@
                             <p class="v-datalist-title"> Add Shape Menu</p>
                             <div class="select" style="display: inline-block; margin: 0.5rem">
                                 <select name="" id="shape-add-dropdown" value="dropdown">
+                                    <option value="Cube">Cube</option>
                                     <option value="Tetrahedron">Tetrahedron</option>
                                     <option value="Octahedron">Octahedron</option>
                                     <option value="Dodecahedron">Dodecahedron</option>
-                                    <option value="Cube">Cube</option>
                                 </select>
                             </div>
 
@@ -153,6 +250,7 @@
                     </p>
                 </div>
 
+                <!--                 
                 <div class="v-datalist-row" id="top-border">
                     <div class="v-datalist-title">Point Co-ordinates</div>
 
@@ -161,34 +259,22 @@
                         <input class="input is-responsive is-small" style="width:20%" type="number" id="quantityx"
                             value="3" placeholder="X"> Y:
                         <input class="input is-responsive is-small" style="width:20%" type="number" id="quantityy"
-                            value="3" placeholder="Y"> Z:
+                            value="4" placeholder="Y"> Z:
                         <input class="input is-responsive is-small" style="width:20%" type="number" id="quantityz"
-                            value="3" placeholder="Z">
+                            value="-2" placeholder="Z">
                     </div>
                     <input class="v-button" style="margin: 1rem;" id="move-button" type="submit" value="Move">
-                </div>
+                </div> -->
 
-                <div class="v-datalist-row" id="top-border">
-                    <div class="v-datalist-title">Experiment Controls</div>
-                    <div class="field-div">
-                        <label for="quantity">Frames</label>
-                        <input class="input is-responsive is-small fields" type="number" id="frames" name="noofframes"
-                            min="1" step="1" value="1000">
-                    </div>
-
-                    <div class="field-div">
-                        <label for="quantity">Final coordinates</label></br>
-                        <input style="width: 20%" class="input is-responsive is-small fields" type="number" id="finalx"
-                            name="finalx" step=".01" value="9">
-                        <input style="width: 20%" class="input is-responsive is-small fields" type="number" id="finaly"
-                            name="finaly" step=".01" value="6">
-                        <input style="width: 20%" class="input is-responsive is-small fields" type="number" id="finalz"
-                            name="finalz" step=".01" value="7">
-                    </div>
+                <div class="v-datalist-title-shapes">Shapes</div>
+                <div id="shape-list" class="shape-list-container">
+                    <!-- Shapes will be dynamically added here -->
                 </div>
 
             </div>
         </aside>
+
+
 
         <aside class="column is-8-desktop is-10-tablet is-10-mobile exp">
             <div class="v-canvas-container" id="canvas-main">
@@ -198,7 +284,9 @@
 
         <aside id="observations" class="column has-text-centered is-2-desktop is-5-tablet is-5-mobile right">
             <div class="v-datalist-container">
-                <div class="v-datalist-title">Transformation Matrix</div>
+
+
+                <div class="v-datalist-title" style="font-size: 22px;">Transformation Matrix</div>
                 <br>
                 <div style="display: flexbox;">
                     <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-00" value="1"
@@ -240,14 +328,56 @@
                     <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-33" value="1"
                         placeholder="X">
                 </div>
+
+
+                <div>
+                    <div class="v-datalist-title-experiment" style="font-size: 25px;">Experiment Controls</div>
+                    <div class="field-div">
+                        <label for="quantity" style="font-size: 22px;">Frames</label>
+                        <input class="input is-responsive fields" type="number" id="frames" name="noofframes" min="1"
+                            step="1" value="1000">
+                    </div>
+
+                    <div class="field-div">
+                        <label for="quantity" style="font-size: 25px;font-weight: bold;">Translation Vector</label></br>
+                        <span style="font-size: 25px;">x</span>:<input style="width: 25%"
+                            class="input is-responsive fields" type="number" id="finalx" name="finalx" step=".1"
+                            value="4">
+                        <span style="font-size: 25px;">y</span>:<input style="width: 25%"
+                            class="input is-responsive fields" type="number" id="finaly" name="finaly" step=".1"
+                            value="2">
+                        <span style="font-size: 25px;">z</span>:<input style="width: 25%"
+                            class="input is-responsive fields" type="number" id="finalz" name="finalz" step=".1"
+                            value="-3">
+                    </div>
+                </div>
             </div>
+
         </aside>
+
+
     </main>
 
-    <input class="v-slider-full is-centered column exptwoslider is-fullwidth" id="slider" value="0" step="1"
-        type="range">
-    <script src="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.8-b/js/script.js"></script>
-    <script type="module" src="./js/main.js"></script>
+    <!-- <input class="v-slider-full is-centered column exptwoslider centered-slider" id="slider" value="0" step="1" type="range"> -->
+    <main class="columns is-centered is-variable is-1-mobile is-flex-wrap-wrap workspace">
+        <!-- Existing content -->
+        <aside class="column is-8-desktop is-10-tablet is-10-mobile exp">
+            <div class="v-canvas-container" id="canvas-main">
+                <!-- Three.js simulation will be here -->
+                <script src="https://cdn.jsdelivr.net/gh/virtual-labs/virtual-style@0.0.8-b/js/script.js"></script>
+                <script type="module" src="./js/main.js"></script>
+            </div>
+
+            <div class="slider-container">
+                <input class="v-slider-full is-centered column exptwoslider centered-slider" id="slider" value="0"
+                    step="1" type="range">
+            </div>
+        </aside>
+
+
+    </main>
+
 </body>
+
 
 </html>
