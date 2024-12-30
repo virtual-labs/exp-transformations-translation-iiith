@@ -1,22 +1,32 @@
-1. **Introduction to Translation:**
-   - Familiarize yourself with the fundamental concept of translation transformation in computer graphics.
+## Interactive Simulation Procedure
 
-2. **Interactive Point Translation:**
-   - Explore the application of translation on a point by utilizing the interactive slider located at the bottom of the simulation.
-   - Observe how the point smoothly transitions to its new location as the slider is adjusted.
+### 1. Add a Shape:
 
-3. **Visualization of Transformation:**
-   - Examine the tree structure displaying the transformation applied to the point.
-   - The node on the tree represents the translation distances along each axis, providing a visual representation of the transformation process.
-   - Adjust the slider to witness an animated transformation between the initial and final points.
+1. **Click Add Shape:**
+   - Click on the **Add Shape** button.
+   
+2. **Select Shape Coordinates:**
+   - Specify the coordinates for the shape.
+   
+3. **Submit Shape:**
+   - Click **Add** to add the specified shape to the simulation.
 
-4. **Matrix Representation Display:**
-   - View the translation matrix \(T\) that is being applied to the point.
-   - Experiment with modifying the translation distances and observe how the matrix dynamically adjusts to reflect the changes.
+### 2. Select and Edit Shape:
 
-5. **Understanding Co-ordinate Systems:**
-   - Recognize that transformations can also be interpreted as a modification of the coordinate system, all while keeping the point in its original place.
-   - Access the "Transform Coordinate Systems" checkbox under the Display tab to switch between standard translation and co-ordinate system modification.
-   - Compare and contrast how the transformation behaves in both scenarios to gain a comprehensive understanding.
+1. **Click Select Shape:**
+   - Use the **Select Shape** option to pick a shape for modification within the simulation.
+   
+2. **Edit Shape:**
+   - Click **Edit Shape** to adjust the properties or position of the selected shape.
 
-By following this procedure, you will gain hands-on experience with translation transformations, matrix representations, and the interplay between points and coordinate systems in a visual and interactive manner.
+### 3. Transformation Matrix for Translation Experiment:
+
+For the translation experiment, the transformation matrix applies a translation to coordinates, shifting shapes across the canvas. The translation coordinates specify how much to move shapes along the x and y axes, altering their position relative to their original coordinates. This technique is crucial for dynamic simulations where objects need to move smoothly within the graphical environment.
+
+
+
+
+
+
+
+
