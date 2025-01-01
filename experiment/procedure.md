@@ -1,32 +1,21 @@
-## Interactive Simulation Procedure
-
-### 1. Add a Shape:
-
-1. **Click Add Shape:**
-   - Click on the **Add Shape** button.
-   
-2. **Select Shape Coordinates:**
-   - Specify the coordinates for the shape.
-   
-3. **Submit Shape:**
-   - Click **Add** to add the specified shape to the simulation.
-
-### 2. Select and Edit Shape:
-
-1. **Click Select Shape:**
-   - Use the **Select Shape** option to pick a shape for modification within the simulation.
-   
-2. **Edit Shape:**
-   - Click **Edit Shape** to adjust the properties or position of the selected shape.
-
-### 3. Transformation Matrix for Translation Experiment:
-
-For the translation experiment, the transformation matrix applies a translation to coordinates, shifting shapes across the canvas. The translation coordinates specify how much to move shapes along the x and y axes, altering their position relative to their original coordinates. This technique is crucial for dynamic simulations where objects need to move smoothly within the graphical environment.
+### Procedure 
 
 
+1. **Navigating the Interface:**
+   - Explore the simulation interface which includes various controls and settings.
+   - Use the checkboxes under "Display Settings" to toggle graph locks and grid displays.
 
+2. **Interacting with Shapes:**
+   - Add shapes by clicking the "Add" button and selecting a shape type and coordinates.
+   - Edit or delete shapes by selecting them and using the respective "Edit" or "Delete" buttons.
 
+3. **Manipulating the Simulation:**
+   - Use mouse controls for translation and rotation, and the scroll wheel for zooming.
+   - On mobile devices, use touch controls for similar interactions like panning, rotating, and zooming.
 
+4. **Applying Changes and Resetting:**
+   - Adjust the transformation matrix and translation vector as needed.
+   - Click "Apply Translation" to apply specified translations.
+   - Click "Reset All" to revert all controls and settings to their default values.
 
-
-
+**Note:** For the best experience, use a desktop screen as the simulation is optimized for larger displays.

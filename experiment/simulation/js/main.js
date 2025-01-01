@@ -23,17 +23,18 @@ let xzGrid = document.getElementById("xz-grid-cb");
 let container = document.getElementById("canvas-main");
 let modalAdd = document.getElementById("add-modal");
 let modalEdit = document.getElementById("edit-modal");
-let initial_pos = [3, 4, -2];
+
+var finalX = parseFloat(document.getElementById("finalx").value);
+var finalY = parseFloat(document.getElementById("finaly").value);
+var finalZ = parseFloat(document.getElementById("finalz").value);
+
+let initial_pos = [0, 0, 0];
 let spanEditModal = document.getElementsByClassName("close")[0];
 let slider = document.getElementById("slider");
 slider.addEventListener("input", movePoint);
-document.getElementById("slider").max =
-  document.getElementById("finalx").value - initial_pos[0];
+document.getElementById("slider").max =1000;
 document.getElementById("slider").min = 0;
-slider.step =
-  (document.getElementById("slider").max -
-    document.getElementById("slider").min) /
-  document.getElementById("frames").value;
+slider.step = 1;
 
 let final_pos = [
   parseFloat(document.getElementById("finalx").value),
@@ -46,7 +47,7 @@ trans_matrix.set(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
 let shapeCount = [0, 0, 0, 0];
 
-let frames = document.getElementById("frames").value;
+let frames = 1000;
 let scene,
   PI = 3.141592653589793,
   camera,
@@ -745,6 +746,27 @@ spanEditModal.onclick = function () {
 //     initial_pos[2] = z;
 // });
 
+// Apply Translation function
+
+function applyTranslation(event) {
+  event.preventDefault(); // Prevent the default form submission
+  finalX = parseFloat(document.getElementById("finalx").value);
+  finalY = parseFloat(document.getElementById("finaly").value);
+  finalZ = parseFloat(document.getElementById("finalz").value);
+
+  // Your translation logic here
+  // console.log("Translation applied:", transX, transY, transZ);
+
+  // Optionally, you can remove the event listener after it's triggered once
+  // event.target.removeEventListener("submit", applyTranslation);
+}
+
+// Add event listeners for Apply Scaling and Apply Translation buttons
+
+document
+  .getElementById("translation-form")
+  .addEventListener("submit", applyTranslation);
+  
 let prev_x = 0;
 let prev_y = 0;
 let prev_z = 0;
@@ -753,9 +775,9 @@ function movePoint(e) {
   var target = e.target || e.srcElement;
 
   // Get target values directly from input
-  let tx = parseFloat(document.getElementById("finalx").value);
-  let ty = parseFloat(document.getElementById("finaly").value);
-  let tz = parseFloat(document.getElementById("finalz").value);
+  let tx = finalX;
+  let ty = finalY;
+  let tz = finalZ;
 
   // Calculate translation based on slider value
   let translationScale = target.value / target.max;
@@ -833,94 +855,94 @@ function movePoint(e) {
   document.getElementById("matrix-33").value = trans_matrix.elements[15];
 }
 
-document.getElementById("finalx").onchange = function () {
-  let new_value = document.getElementById("finalx").value; // new value
-  let old_position = dotList[0].geometry.getAttribute("position").array[0];
-  let new_position =
-    initial_pos[0] +
-    ((old_position - initial_pos[0]) * (new_value - initial_pos[0])) /
-      (final_pos[0] - initial_pos[0]);
-  let translate_M = new THREE.Matrix4();
-  translate_M.makeTranslation(new_position - old_position, 0, 0);
-  dotList[0].geometry.applyMatrix4(translate_M);
-  dotList[0].geometry.verticesNeedUpdate = true;
+// document.getElementById("finalx").onchange = function () {
+//   let new_value = document.getElementById("finalx").value; // new value
+//   let old_position = dotList[0].geometry.getAttribute("position").array[0];
+//   let new_position =
+//     initial_pos[0] +
+//     ((old_position - initial_pos[0]) * (new_value - initial_pos[0])) /
+//       (final_pos[0] - initial_pos[0]);
+//   let translate_M = new THREE.Matrix4();
+//   translate_M.makeTranslation(new_position - old_position, 0, 0);
+//   dotList[0].geometry.applyMatrix4(translate_M);
+//   dotList[0].geometry.verticesNeedUpdate = true;
 
-  document.getElementById("quantityx").value =
-    dotList[0].geometry.getAttribute("position").array[0];
-  final_pos[0] = new_value;
-};
+//   document.getElementById("quantityx").value =
+//     dotList[0].geometry.getAttribute("position").array[0];
+//   final_pos[0] = new_value;
+// };
 
-document.getElementById("finaly").onchange = function () {
-  let new_value = document.getElementById("finaly").value; // new value
-  let old_position = dotList[0].geometry.getAttribute("position").array[1];
-  let new_position =
-    initial_pos[1] +
-    ((old_position - initial_pos[1]) * (new_value - initial_pos[1])) /
-      (final_pos[1] - initial_pos[1]);
+// document.getElementById("finaly").onchange = function () {
+//   let new_value = document.getElementById("finaly").value; // new value
+//   let old_position = dotList[0].geometry.getAttribute("position").array[1];
+//   let new_position =
+//     initial_pos[1] +
+//     ((old_position - initial_pos[1]) * (new_value - initial_pos[1])) /
+//       (final_pos[1] - initial_pos[1]);
 
-  let translate_M = new THREE.Matrix4();
-  translate_M.makeTranslation(0, new_position - old_position, 0);
-  dotList[0].geometry.applyMatrix4(translate_M);
-  dotList[0].geometry.verticesNeedUpdate = true;
+//   let translate_M = new THREE.Matrix4();
+//   translate_M.makeTranslation(0, new_position - old_position, 0);
+//   dotList[0].geometry.applyMatrix4(translate_M);
+//   dotList[0].geometry.verticesNeedUpdate = true;
 
-  document.getElementById("quantityy").value =
-    dotList[0].geometry.getAttribute("position").array[1];
-  final_pos[1] = new_value;
-};
+//   document.getElementById("quantityy").value =
+//     dotList[0].geometry.getAttribute("position").array[1];
+//   final_pos[1] = new_value;
+// };
 
-document.getElementById("finalz").onchange = function () {
-  let new_value = document.getElementById("finalz").value; // new value
-  let old_position = dotList[0].geometry.getAttribute("position").array[2];
-  let new_position =
-    initial_pos[2] +
-    ((old_position - initial_pos[2]) * (new_value - initial_pos[2])) /
-      (final_pos[2] - initial_pos[2]);
+// document.getElementById("finalz").onchange = function () {
+//   let new_value = document.getElementById("finalz").value; // new value
+//   let old_position = dotList[0].geometry.getAttribute("position").array[2];
+//   let new_position =
+//     initial_pos[2] +
+//     ((old_position - initial_pos[2]) * (new_value - initial_pos[2])) /
+//       (final_pos[2] - initial_pos[2]);
 
-  let translate_M = new THREE.Matrix4();
-  translate_M.makeTranslation(0, 0, new_position - old_position);
-  dotList[0].geometry.applyMatrix4(translate_M);
-  dotList[0].geometry.verticesNeedUpdate = true;
+//   let translate_M = new THREE.Matrix4();
+//   translate_M.makeTranslation(0, 0, new_position - old_position);
+//   dotList[0].geometry.applyMatrix4(translate_M);
+//   dotList[0].geometry.verticesNeedUpdate = true;
 
-  document.getElementById("quantityz").value =
-    dotList[0].geometry.getAttribute("position").array[2];
-  final_pos[2] = new_value;
-};
+//   document.getElementById("quantityz").value =
+//     dotList[0].geometry.getAttribute("position").array[2];
+//   final_pos[2] = new_value;
+// };
 
-document.getElementById("frames").onchange = function () {
-  let new_value = document.getElementById("frames").value; // new value
-  let cur_pos = new Array();
-  for (let i = 0; i < 3; i++) {
-    cur_pos[i] = dotList[0].geometry.getAttribute("position").array[i];
-  }
+// document.getElementById("frames").onchange = function () {
+//   let new_value = document.getElementById("frames").value; // new value
+//   let cur_pos = new Array();
+//   for (let i = 0; i < 3; i++) {
+//     cur_pos[i] = dotList[0].geometry.getAttribute("position").array[i];
+//   }
 
-  document.getElementById("quantityx").value =
-    initial_pos[0] +
-    parseFloat(((cur_pos[0] - initial_pos[0]) * frames) / new_value);
-  document.getElementById("quantityy").value =
-    initial_pos[1] +
-    parseFloat(((cur_pos[1] - initial_pos[1]) * frames) / new_value);
-  document.getElementById("quantityz").value =
-    initial_pos[2] +
-    parseFloat(((cur_pos[2] - initial_pos[2]) * frames) / new_value);
+//   document.getElementById("quantityx").value =
+//     initial_pos[0] +
+//     parseFloat(((cur_pos[0] - initial_pos[0]) * frames) / new_value);
+//   document.getElementById("quantityy").value =
+//     initial_pos[1] +
+//     parseFloat(((cur_pos[1] - initial_pos[1]) * frames) / new_value);
+//   document.getElementById("quantityz").value =
+//     initial_pos[2] +
+//     parseFloat(((cur_pos[2] - initial_pos[2]) * frames) / new_value);
 
-  let translate_M = new THREE.Matrix4();
-  translate_M.makeTranslation(
-    document.getElementById("quantityx").value - cur_pos[0],
-    document.getElementById("quantityy").value - cur_pos[1],
-    document.getElementById("quantityz").value - cur_pos[2]
-  );
-  dotList[0].geometry.applyMatrix4(translate_M);
-  dotList[0].geometry.verticesNeedUpdate = true;
+//   let translate_M = new THREE.Matrix4();
+//   translate_M.makeTranslation(
+//     document.getElementById("quantityx").value - cur_pos[0],
+//     document.getElementById("quantityy").value - cur_pos[1],
+//     document.getElementById("quantityz").value - cur_pos[2]
+//   );
+//   dotList[0].geometry.applyMatrix4(translate_M);
+//   dotList[0].geometry.verticesNeedUpdate = true;
 
-  slider.step =
-    (document.getElementById("slider").max -
-      document.getElementById("slider").min) /
-    document.getElementById("frames").value;
-  let no_of_frames = frames * (slider.value / slider.max);
-  slider.value =
-    document.getElementById("slider").max * (no_of_frames / new_value);
-  frames = new_value;
-};
+//   slider.step =
+//     (document.getElementById("slider").max -
+//       document.getElementById("slider").min) /
+//     document.getElementById("frames").value;
+//   let no_of_frames = frames * (slider.value / slider.max);
+//   slider.value =
+//     document.getElementById("slider").max * (no_of_frames / new_value);
+//   frames = new_value;
+// };
 
 
 
