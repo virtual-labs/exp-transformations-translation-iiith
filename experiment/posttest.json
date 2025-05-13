@@ -19,7 +19,7 @@
             "difficulty": "beginner"
         },
         {
-            "question": "2. In computer graphics, what is the homogeneous coordinate system used for in the context of translation?",
+            "question": "2. In computer graphics, why is the homogeneous coordinate system used for in the context of translation?",
             "answers": {
                 "a": "To represent color",
                 "b": "To handle 3D rotations",
@@ -39,7 +39,7 @@
             "question": "3. How does translation differ from scaling in computer graphics?",
             "answers": {
                 "a": "Translation changes the size of objects.",
-                "b": "Scaling repositions objects.",
+                "b": "Translation repositions objects.",
                 "c": "Translation modifies the orientation of objects.",
                 "d": "Scaling adjusts the color of objects."
             },
@@ -57,7 +57,7 @@
             "answers": {
                 "a": "Creating 3D rotations",
                 "b": "Developing color gradients",
-                "c": "Designing interactive user interfaces",
+                "c": "Changing the scene based on user interactions",
                 "d": "Implementing encryption algorithms"
             },
             "correctAnswer": "c",
