@@ -22,18 +22,32 @@ function fragmentShader() {
                     }`;
 }
 
-
 export function createMaterials() {
-    const cubeShader = new THREE.ShaderMaterial({
-        uniforms: {
-            colorA: { type: "vec3", value: new THREE.Color(0xff0000) },
-            colorB: { type: "vec3", value: new THREE.Color(0x0000ff) },
-        },
-        vertexShader: vertexShader(),
-        fragmentShader: fragmentShader(),
-    });
+    try {
+        // Create a basic material with proper initialization
+        const cubeShader = new THREE.MeshBasicMaterial({ 
+            color: 0xff0000,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.8
+        });
 
-    return {
-        cubeShader,
-    };
+        // Ensure the material is properly initialized
+        cubeShader.needsUpdate = true;
+
+        return {
+            cubeShader,
+        };
+    } catch (error) {
+        console.error('Error creating materials:', error);
+        // Return a basic material as fallback
+        const fallbackMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0xff0000,
+            side: THREE.DoubleSide
+        });
+        fallbackMaterial.needsUpdate = true;
+        return {
+            cubeShader: fallbackMaterial
+        };
+    }
 }
