@@ -7,8 +7,8 @@ import {
   createDodecahedron,
   createOctahedron,
   createTetrahedron,
-} from "./js/shapes.js";
-import { dot } from "./js/point.js";
+} from "./shapes.js";
+import { dot } from "./point.js";
 
 const moveButton = document.getElementById("move-button");
 const modalbutton1 = document.querySelector(".edit-button");
@@ -32,8 +32,8 @@ let initial_pos = [0, 0, 0];
 let spanEditModal = document.getElementsByClassName("close")[0];
 let slider = document.getElementById("slider");
 slider.addEventListener("input", movePoint);
-document.getElementById("slider").max =1000;
-document.getElementById("slider").min = 0;
+slider.max = 1000;
+slider.min = 0;
 slider.step = 1;
 
 let final_pos = [
@@ -59,11 +59,19 @@ let scene,
   xzgrid = [],
   dragX = [],
   dragY = [],
-  dragz = [],
+  dragZ = [],
   lock = 0,
   dir = [],
   shapeList = [],
-  arrowHelper = [];
+  arrowHelper = [],
+  point = [],
+  shapeVertex = [],
+  size = 20,
+  divisions = 20,
+  mouse = new THREE.Vector2(),
+  raycaster = new THREE.Raycaster(),
+  plane = new THREE.Plane(),
+  pNormal = new THREE.Vector3(0, 1, 0);
 let addModal = document.getElementById("add-modal");
 let spanAddModal = document.getElementsByClassName("close")[1];
 
@@ -71,13 +79,14 @@ spanAddModal.onclick = function () {
   addModal.style.display = "none";
 };
 
+// Lock checkbox handlers
 lockVertices.addEventListener("click", updateMouseButtons);
 lockZoom.addEventListener("click", updateMouseButtons);
 lockRotate.addEventListener("click", updateMouseButtons);
 
 function updateMouseButtons() {
   let leftMouse = MOUSE.PAN; // Default behavior (panning with left mouse)
-  let middleMouse = MOUSE.PAN; // Set middle mouse to MOUSE.PAN but it will do nothing
+  let middleMouse = MOUSE.DOLLY; // Default behavior (zooming with middle mouse)
   let rightMouse = MOUSE.ROTATE; // Default behavior (rotation with right mouse)
 
   // If lockVertices is checked, disable LEFT (no panning)
@@ -142,7 +151,6 @@ yzGrid.addEventListener("click", () => {
   if (yzGrid.checked) {
     let grid = new THREE.GridHelper(size, divisions);
     grid.geometry.rotateZ(PI / 2);
-    // grid.lookAt(vector3);
     yzgrid.push(grid);
     scene.add(yzgrid[0]);
   } else {
@@ -159,19 +167,17 @@ function updateShapeList(shapeList) {
 
   shapeList.forEach((shape) => {
     const li = document.createElement("li");
+    const isSelected = shapes.find(s => s.userData.id === shape.id)?.userData.selected;
 
     li.innerHTML = `
       <div class="shape-info">
         <span class="shape-id">${shape.id}</span>
-        <span class="coordinates">(${shape.x}, ${shape.y}, ${shape.z})</span>
+        <span class="coordinates">(${shape.x.toFixed(2)}, ${shape.y.toFixed(2)}, ${shape.z.toFixed(2)})</span>
       </div>
       <div class="button-group">
-        <button class="select-btn" 
-                data-name="${shape.id}" 
-                data-coordinates="${shape.x},${shape.y},${shape.z}">
-          Select
+        <button class="select-btn ${isSelected ? 'shape-selected' : ''}" data-name="${shape.id}">
+          ${isSelected ? 'Selected' : 'Select'}
         </button>
-        
       </div>
     `;
     ul.appendChild(li);
@@ -179,101 +185,77 @@ function updateShapeList(shapeList) {
 
   shapeListDiv.appendChild(ul);
 
-  // Attach event listeners for Select, Edit, and Delete buttons
+  // Attach event listeners for Select buttons
   document.querySelectorAll(".select-btn").forEach((button) => {
     button.addEventListener("click", handleSelect, false);
   });
-
-  document.querySelectorAll(".edit-btn").forEach((button) => {
-    button.addEventListener("click", handleEdit, false);
-  });
-
-  document.querySelectorAll(".delete-btn").forEach((button) => {
-    button.addEventListener("click", handleDelete, false);
-  });
 }
 
+// Shape selection handler
 function handleSelect(event) {
-  const shapeName = event.target.getAttribute("data-name");
-  const shapeCoordinates = event.target.getAttribute("data-coordinates");
+  const shapeId = event.target.dataset.name;
+  const selectedShape = shapes.find(shape => shape.name === shapeId.split('-')[0] && shape.userData.id === shapeId);
+  
+  if (selectedShape) {
+    // Deselect all shapes
+    shapes.forEach(shape => {
+      shape.userData.selected = false;
+      if (shape.userData.outline) {
+        shape.remove(shape.userData.outline);
+        shape.userData.outline = null;
+      }
+    });
 
-  // Validate the selected shape data
-  if (!shapeName || !shapeCoordinates) {
-    console.error("Missing shape name or coordinates");
-    return;
-  }
-
-  console.log(`Shape Selected: ${shapeName}`);
-  console.log(`Coordinates: ${shapeCoordinates}`);
-
-  // Safely parse coordinates
-  let coordsArray;
-  try {
-    coordsArray = shapeCoordinates
-      .replace(/[()]/g, "")
-      .split(",")
-      .map((coord) => parseFloat(coord.trim()));
-
-    if (coordsArray.length !== 3 || coordsArray.some(isNaN)) {
-      throw new Error("Invalid coordinate format");
+    // Select the clicked shape
+    selectedShape.userData.selected = true;
+    
+    // Create outline based on shape type
+    let outlineGeometry;
+    switch(selectedShape.name) {
+      case 'Cube':
+        outlineGeometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+        break;
+      case 'Tetrahedron':
+        outlineGeometry = new THREE.TetrahedronGeometry(1.2);
+        break;
+      case 'Octahedron':
+        outlineGeometry = new THREE.OctahedronGeometry(1.2);
+        break;
+      case 'Dodecahedron':
+        outlineGeometry = new THREE.DodecahedronGeometry(1.2);
+        break;
+      default:
+        outlineGeometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
     }
-  } catch (error) {
-    console.error("Error parsing coordinates:", error);
-    return;
+    
+    const outlineMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffff00,
+      side: THREE.BackSide,
+      transparent: true,
+      opacity: 0.5
+    });
+    
+    const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
+    selectedShape.add(outline);
+    selectedShape.userData.outline = outline;
+
+    // Update edit modal with shape's current position
+    document.getElementById('x').value = selectedShape.position.x;
+    document.getElementById('y').value = selectedShape.position.y;
+    document.getElementById('z').value = selectedShape.position.z;
+    document.getElementById('shape-edit-dropdown').value = selectedShape.name;
+
+    // Update result coordinates display
+    const resultCoords = document.getElementById('result-coordinates');
+    if (resultCoords) {
+      resultCoords.textContent = `Result: (${selectedShape.position.x.toFixed(2)}, ${selectedShape.position.y.toFixed(2)}, ${selectedShape.position.z.toFixed(2)})`;
+    }
+
+    // Update button state
+    const selectBtn = event.target;
+    selectBtn.classList.add('shape-selected');
+    selectBtn.textContent = 'Selected';
   }
-
-  const shapePosition = new THREE.Vector3(
-    coordsArray[0],
-    coordsArray[1],
-    coordsArray[2]
-  );
-
-  // Find the shape in the shapeList based on its coordinates
-  const shape = shapes.find(
-    (s) =>
-      s.position.x == coordsArray[0] &&
-      s.position.y == coordsArray[1] &&
-      s.position.z == coordsArray[2]
-  );
-
-  if (!shape) {
-    console.log("Shape not found in shapes.");
-    return;
-  }
-
-  // Handle selection and deselection of shapes
-  const existingLine = scene.getObjectByName("selection-line");
-
-  if (existingLine && existingLine.position.equals(shapePosition)) {
-    scene.remove(existingLine);
-    console.log("Deselected the shape.");
-    return;
-  }
-
-  // Remove existing selection line
-  if (existingLine) {
-    scene.remove(existingLine);
-  }
-
-  // Create a new selection line
-  const geometry = new THREE.SphereGeometry(1, 32, 16);
-  const edges = new THREE.EdgesGeometry(geometry);
-  const line = new THREE.LineSegments(
-    edges,
-    new THREE.LineBasicMaterial({ color: 0xffffff })
-  );
-  line.position.set(shapePosition.x, shapePosition.y, shapePosition.z);
-  line.name = "selection-line"; // Add a name for easy identification
-  scene.add(line);
-  console.log("Selection line created at shape's position.");
-
-  // Get delete and edit buttons
-  const deleteButton = document.getElementById("delete-shape-btn");
-  const editButton = document.getElementById("edit-shape-btn");
-
-  // Clear previous event listeners before setting them again
-  deleteButton.onclick = () => handleDelete(shape, line, coordsArray);
-  editButton.onclick = () => handleEdit(shape, line, coordsArray);
 }
 
 function handleDelete(shape, line, coordsArray) {
@@ -377,7 +359,7 @@ function handleEdit(shape, line, coordsArray) {
         shapeVertex,
         dragX,
         dragY,
-        dragz
+        dragZ
       );
     } else {
       console.error("Invalid shape type");
@@ -397,8 +379,6 @@ function handleEdit(shape, line, coordsArray) {
 }
 
 let buttons = document.getElementsByTagName("button");
-const size = 100; //during run time we can assign the size and divisions
-const divisions = 25;
 
 // Since each time the modal opened, a new listener was attached, the listener count grew.
 // Even though each listener would only trigger once when clicked, multiple listeners meant that the shape-creation code was triggered multiple times, once for each listener.
@@ -443,7 +423,7 @@ function handleShapeAddition() {
       shapeVertex,
       dragX,
       dragY,
-      dragz
+      dragZ
     );
   } else if (shapeType === "Tetrahedron") {
     createTetrahedron(
@@ -458,7 +438,7 @@ function handleShapeAddition() {
       shapeVertex,
       dragX,
       dragY,
-      dragz
+      dragZ
     );
   } else if (shapeType === "Octahedron") {
     createOctahedron(
@@ -473,7 +453,7 @@ function handleShapeAddition() {
       shapeVertex,
       dragX,
       dragY,
-      dragz
+      dragZ
     );
   } else if (shapeType === "Dodecahedron") {
     createDodecahedron(
@@ -488,277 +468,66 @@ function handleShapeAddition() {
       shapeVertex,
       dragX,
       dragY,
-      dragz
+      dragZ
     );
   }
   updateShapeList(shapeList); // Update the UI
   addModal.style.display = "none";
 }
 
-let raycaster = new THREE.Raycaster();
-let mouse = new THREE.Vector2();
-let plane = new THREE.Plane();
-let pNormal = new THREE.Vector3(0, 1, 0);
-
 let planeIntersect = new THREE.Vector3();
 let pIntersect = new THREE.Vector3();
 let shift = new THREE.Vector3();
 let isDragging = false;
 let dragObject;
-let point = [];
-let shapeVertex = [];
 let dotList = [];
 let noOfShapes = 0;
-
-// function ondblclick(event) {
-//   console.log("double click");
-//   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-//   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-//   console.log(mouse.x, mouse.y);
-//   console.log(camera.position);
-//   console.log(shapes[0].position);
-//   // Assuming `shapes` is an array of THREE.Mesh objects or any other THREE.Object3D derived objects
-//   shapes.forEach((obj) => {
-//     if (obj instanceof THREE.Object3D) {
-//       obj.updateMatrixWorld();
-//     }
-//   });
-//   raycaster.near = 0.1;
-//   raycaster.far = 1000;
-
-// // camera.lookAt([mouse.x, mouse.y, 0]);
-// camera.updateMatrixWorld();
-//   raycaster.setFromCamera(mouse, camera);
-//   // Remove previous event listeners to prevent multiple bindings
-//   //    document.getElementById("delete-shape-btn").onclick = null;
-//   //    document.getElementById("edit-shape-btn").onclick = null;
-
-//   let intersects = raycaster.intersectObjects(scene.children, false);
-//   if (intersects.length > 0) {
-//     console.log(intersects[0].point);
-//   }
-
-//   // Check if there's already a selection line
-//   const existingLine = scene.getObjectByName("selection-line");
-
-//   if (intersects.length > 0) {
-//     // If a line already exists and it's at the same position, remove it (deselect)
-//     if (
-//       existingLine &&
-//       existingLine.position.equals(intersects[0].object.position)
-//     ) {
-//       scene.remove(existingLine);
-//       return;
-//     }
-
-//     // Remove any existing selection line first
-//     if (existingLine) {
-//       scene.remove(existingLine);
-//     }
-
-//     // Create new selection line
-//     const geometry = new THREE.SphereGeometry(1, 32, 16);
-//     const edges = new THREE.EdgesGeometry(geometry);
-//     const line = new THREE.LineSegments(
-//       edges,
-//       new THREE.LineBasicMaterial({ color: 0xffffff })
-//     );
-//     line.position.set(
-//       intersects[0].object.position.x,
-//       intersects[0].object.position.y,
-//       intersects[0].object.position.z
-//     );
-//     line.name = "selection-line"; // Add a name for easy identification
-//     scene.add(line);
-
-//     document.getElementById("delete-shape-btn").onclick = function () {
-//       scene.remove(line);
-//       for (let i = 0; i < intersects.length; i++) {
-//         scene.remove(intersects[i].object);
-//         noOfShapes--;
-//       }
-//     };
-
-//     document.getElementById("edit-shape-btn").onclick = function () {
-//       document.getElementById("edit-modal").style.display = "block";
-//       document.querySelector(".edit-button").addEventListener("click", () => {
-//         for (let i = 0; i < intersects.length; i++) {
-//           scene.remove(intersects[i].object);
-//           scene.remove(line);
-//         }
-//         let xcoord = document.getElementById("x").value;
-//         let ycoord = document.getElementById("y").value;
-//         let zcoord = document.getElementById("z").value;
-//         noOfShapes++;
-//         if (document.querySelector("select").value === "Cube") {
-//           createCube(
-//             xcoord,
-//             ycoord,
-//             zcoord,
-//             shapes,
-//             shapeList,
-//             shapeCount,
-//             scene,
-//             point,
-//             shapeVertex,
-//             dragX,
-//             dragY,
-//             dragz
-//           );
-//         }
-//         if (document.querySelector("select").value === "Tetrahedron") {
-//           createTetrahedron(
-//             xcoord,
-//             ycoord,
-//             zcoord,
-//             shapes,
-//             shapeList,
-//             shapeCount,
-//             scene,
-//             point,
-//             shapeVertex,
-//             dragX,
-//             dragY,
-//             dragz
-//           );
-//         }
-//         if (document.querySelector("select").value === "Octahedron") {
-//           createOctahedron(
-//             xcoord,
-//             ycoord,
-//             zcoord,
-//             shapes,
-//             shapeList,
-//             shapeCount,
-//             scene,
-//             point,
-//             shapeVertex,
-//             dragX,
-//             dragY,
-//             dragz
-//           );
-//         }
-//         if (document.querySelector("select").value === "Dodecahedron") {
-//           createDodecahedron(
-//             xcoord,
-//             ycoord,
-//             zcoord,
-//             shapes,
-//             shapeList,
-//             shapeCount,
-//             scene,
-//             point,
-//             shapeVertex,
-//             dragX,
-//             dragY,
-//             dragz
-//           );
-//         }
-//         document.getElementById("edit-modal").style.display = "none";
-//       });
-//     };
-//   }
-// }
 
 spanEditModal.onclick = function () {
   modalEdit.style.display = "none";
 };
 
-// document.addEventListener("pointermove", (event) => {
-//     const rect = renderer.domElement.getBoundingClientRect();
-//     const x = event.clientX - rect.left;
-//     const y = event.clientY - rect.top;
-
-//     mouse.x = (x / container.clientWidth) * 2 - 1;
-//     mouse.y = (y / container.clientHeight) * -2 + 1;
-//     if (mouse.x < 1 && mouse.x > -1 && mouse.y < 1 && mouse.y > -1) {
-//         raycaster.setFromCamera(mouse, camera);
-//         if (isDragging && lock === 0) {
-//             for (let i = 0; i < shapes.length; i++) {
-//                 raycaster.ray.intersectPlane(plane, planeIntersect);
-//                 shapes[i].geometry.vertices[0].set(
-//                     planeIntersect.x + shift.x,
-//                     planeIntersect.y + shift.y,
-//                     planeIntersect.z + shift.z
-//                 );
-//                 shapes[i].geometry.verticesNeedUpdate = true;
-//                 shapeVertex[i].position.set(
-//                     planeIntersect.x + shift.x - dragX[i],
-//                     planeIntersect.y + shift.y - dragY[i],
-//                     planeIntersect.z + shift.z - dragz[i]
-//                 );
-//             }
-//             raycaster.ray.intersectPlane(plane, planeIntersect);
-//         } else if (isDragging) {
-//             raycaster.ray.intersectPlane(plane, planeIntersect);
-//         }
-//     }
-// });
-
-// document.addEventListener("pointerdown", () => {
-//     switch (event.which) {
-//         case 1:
-//             const rect = renderer.domElement.getBoundingClientRect();
-//             const x = event.clientX - rect.left;
-//             const y = event.clientY - rect.top;
-
-//             mouse.x = (x / container.clientWidth) * 2 - 1;
-//             mouse.y = (y / container.clientHeight) * -2 + 1;
-//             pNormal.copy(camera.position).normalize();
-//             plane.setFromNormalAndCoplanarPoint(pNormal, scene.position);
-//             raycaster.setFromCamera(mouse, camera);
-//             raycaster.ray.intersectPlane(plane, planeIntersect);
-//             let position = new THREE.Vector3(
-//                 shapeVertex
-// [0].position.x,
-//                 shapeVertex
-// [0].position.y,
-//                 shapeVertex
-// [0].position.z
-//             );
-//             shift.subVectors(position, planeIntersect);
-//             isDragging = true;
-//             dragObject = shapes[shapes.length - 1];
-//             break;
-//     }
-// });
-
-// document.addEventListener("pointerup", () => {
-//     isDragging = false;
-//     dragObject = null;
-// });
-
-// moveButton.addEventListener("click", () => {
-//     let x = parseFloat(document.getElementById("quantityx").value);
-//     let y = parseFloat(document.getElementById("quantityy").value);
-//     let z = parseFloat(document.getElementById("quantityz").value);
-//     let translate_M = new THREE.Matrix4();
-//     translate_M.makeTranslation(
-//         x - dotList[0].geometry.getAttribute("position").array[0],
-//         y - dotList[0].geometry.getAttribute("position").array[1],
-//         z - dotList[0].geometry.getAttribute("position").array[2]
-//     );
-//     dotList[0].geometry.applyMatrix4(translate_M);
-//     dotList[0].geometry.verticesNeedUpdate = true;
-//     trans_matrix.multiply(translate_M);
-//     initial_pos[0] = x;
-//     initial_pos[1] = y;
-//     initial_pos[2] = z;
-// });
-
 // Apply Translation function
 
-function applyTranslation(event) {
-  event.preventDefault(); // Prevent the default form submission
-  finalX = parseFloat(document.getElementById("finalx").value);
-  finalY = parseFloat(document.getElementById("finaly").value);
-  finalZ = parseFloat(document.getElementById("finalz").value);
+function applyTranslation() {
+  // Update transformation matrix
+  trans_matrix.set(
+    1, 0, 0, final_pos[0],
+    0, 1, 0, final_pos[1],
+    0, 0, 1, final_pos[2],
+    0, 0, 0, 1
+  );
 
-  // Your translation logic here
-  // console.log("Translation applied:", transX, transY, transZ);
-
-  // Optionally, you can remove the event listener after it's triggered once
-  // event.target.removeEventListener("submit", applyTranslation);
+  // Update matrix input fields with better formatting
+  const matrixContainer = document.getElementById('matrix-container');
+  if (matrixContainer) {
+    matrixContainer.innerHTML = `
+      <div class="matrix-row">
+        <input type="number" value="${trans_matrix.elements[0].toFixed(2)}" readonly>
+        <input type="number" value="${trans_matrix.elements[1].toFixed(2)}" readonly>
+        <input type="number" value="${trans_matrix.elements[2].toFixed(2)}" readonly>
+        <input type="number" value="${trans_matrix.elements[3].toFixed(2)}" readonly>
+      </div>
+      <div class="matrix-row">
+        <input type="number" value="${trans_matrix.elements[4].toFixed(2)}" readonly>
+        <input type="number" value="${trans_matrix.elements[5].toFixed(2)}" readonly>
+        <input type="number" value="${trans_matrix.elements[6].toFixed(2)}" readonly>
+        <input type="number" value="${trans_matrix.elements[7].toFixed(2)}" readonly>
+      </div>
+      <div class="matrix-row">
+        <input type="number" value="${trans_matrix.elements[8].toFixed(2)}" readonly>
+        <input type="number" value="${trans_matrix.elements[9].toFixed(2)}" readonly>
+        <input type="number" value="${trans_matrix.elements[10].toFixed(2)}" readonly>
+        <input type="number" value="${trans_matrix.elements[11].toFixed(2)}" readonly>
+      </div>
+      <div class="matrix-row">
+        <input type="number" value="${trans_matrix.elements[12].toFixed(2)}" readonly>
+        <input type="number" value="${trans_matrix.elements[13].toFixed(2)}" readonly>
+        <input type="number" value="${trans_matrix.elements[14].toFixed(2)}" readonly>
+        <input type="number" value="${trans_matrix.elements[15].toFixed(2)}" readonly>
+      </div>
+    `;
+  }
 }
 
 // Add event listeners for Apply Scaling and Apply Translation buttons
@@ -772,212 +541,54 @@ let prev_y = 0;
 let prev_z = 0;
 
 function movePoint(e) {
-  var target = e.target || e.srcElement;
+  const sliderValue = parseFloat(e.target.value) / 1000;
+  
+  // Only move selected shapes
+  shapes.forEach((shape, index) => {
+    if (shape.userData.selected) {
+      // Calculate new position based on translation vector and slider value
+      const newX = dragX[index] + final_pos[0] * sliderValue;
+      const newY = dragY[index] + final_pos[1] * sliderValue;
+      const newZ = dragZ[index] + final_pos[2] * sliderValue;
+      
+      // Update shape position
+      shape.position.set(newX, newY, newZ);
+      
+      // Update shape list
+      shapeList[index].x = newX;
+      shapeList[index].y = newY;
+      shapeList[index].z = newZ;
 
-  // Get target values directly from input
-  let tx = finalX;
-  let ty = finalY;
-  let tz = finalZ;
-
-  // Calculate translation based on slider value
-  let translationScale = target.value / target.max;
-  let curr_x = tx * translationScale - prev_x;
-  let curr_y = ty * translationScale - prev_y;
-  let curr_z = tz * translationScale - prev_z;
-
-  // Create translation matrix
-  prev_x += curr_x;
-  prev_y += curr_y;
-  prev_z += curr_z;
-  let translate_M = new THREE.Matrix4().makeTranslation(curr_x, curr_y, curr_z);
-
-  // Apply translation to all shapes
-  shapes.forEach((shape) => {
-    shape.geometry.applyMatrix4(translate_M);
-
-    // Update geometry attributes
-    if (shape.geometry.isBufferGeometry) {
-      shape.geometry.attributes.position.needsUpdate = true;
-      shape.geometry.computeBoundingBox();
-      shape.geometry.computeVertexNormals();
-    }
-
-    // Update edges
-    shape.traverse((child) => {
-      if (child.isLineSegments) {
-        child.geometry.applyMatrix4(translate_M);
-        if (child.geometry.isBufferGeometry) {
-          child.geometry.attributes.position.needsUpdate = true;
-        }
+      // Update result coordinates display
+      const resultCoords = document.getElementById('result-coordinates');
+      if (resultCoords) {
+        resultCoords.textContent = `Result: (${newX.toFixed(2)}, ${newY.toFixed(2)}, ${newZ.toFixed(2)})`;
       }
-    });
-  });
-
-  // Update dot
-  // dotList[0].geometry.applyMatrix4(translate_M);
-  // if (dotList[0].geometry.isBufferGeometry) {
-  //   dotList[0].geometry.attributes.position.needsUpdate = true;
-  // }
-
-  trans_matrix.multiply(translate_M);
-
-  // Reset transformation matrix if needed
-  if (target.value <= 0) {
-    trans_matrix.set(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-  }
-
-  // Update UI elements with new position values
-  // document.getElementById("quantityx").value =
-  //   dotList[0].geometry.getAttribute("position").array[0];
-  // document.getElementById("quantityy").value =
-  //   dotList[0].geometry.getAttribute("position").array[1];
-  // document.getElementById("quantityz").value =
-  //   dotList[0].geometry.getAttribute("position").array[2];
-
-  document.getElementById("matrix-00").value = trans_matrix.elements[0];
-  document.getElementById("matrix-01").value = trans_matrix.elements[1];
-  document.getElementById("matrix-02").value = trans_matrix.elements[2];
-  document.getElementById("matrix-03").value = trans_matrix.elements[12];
-
-  document.getElementById("matrix-10").value = trans_matrix.elements[4];
-  document.getElementById("matrix-11").value = trans_matrix.elements[5];
-  document.getElementById("matrix-12").value = trans_matrix.elements[6];
-  document.getElementById("matrix-13").value = trans_matrix.elements[13];
-
-  document.getElementById("matrix-20").value = trans_matrix.elements[8];
-  document.getElementById("matrix-21").value = trans_matrix.elements[9];
-  document.getElementById("matrix-22").value = trans_matrix.elements[10];
-  document.getElementById("matrix-23").value = trans_matrix.elements[14];
-
-  document.getElementById("matrix-30").value = trans_matrix.elements[3];
-  document.getElementById("matrix-31").value = trans_matrix.elements[7];
-  document.getElementById("matrix-32").value = trans_matrix.elements[11];
-  document.getElementById("matrix-33").value = trans_matrix.elements[15];
-}
-
-// document.getElementById("finalx").onchange = function () {
-//   let new_value = document.getElementById("finalx").value; // new value
-//   let old_position = dotList[0].geometry.getAttribute("position").array[0];
-//   let new_position =
-//     initial_pos[0] +
-//     ((old_position - initial_pos[0]) * (new_value - initial_pos[0])) /
-//       (final_pos[0] - initial_pos[0]);
-//   let translate_M = new THREE.Matrix4();
-//   translate_M.makeTranslation(new_position - old_position, 0, 0);
-//   dotList[0].geometry.applyMatrix4(translate_M);
-//   dotList[0].geometry.verticesNeedUpdate = true;
-
-//   document.getElementById("quantityx").value =
-//     dotList[0].geometry.getAttribute("position").array[0];
-//   final_pos[0] = new_value;
-// };
-
-// document.getElementById("finaly").onchange = function () {
-//   let new_value = document.getElementById("finaly").value; // new value
-//   let old_position = dotList[0].geometry.getAttribute("position").array[1];
-//   let new_position =
-//     initial_pos[1] +
-//     ((old_position - initial_pos[1]) * (new_value - initial_pos[1])) /
-//       (final_pos[1] - initial_pos[1]);
-
-//   let translate_M = new THREE.Matrix4();
-//   translate_M.makeTranslation(0, new_position - old_position, 0);
-//   dotList[0].geometry.applyMatrix4(translate_M);
-//   dotList[0].geometry.verticesNeedUpdate = true;
-
-//   document.getElementById("quantityy").value =
-//     dotList[0].geometry.getAttribute("position").array[1];
-//   final_pos[1] = new_value;
-// };
-
-// document.getElementById("finalz").onchange = function () {
-//   let new_value = document.getElementById("finalz").value; // new value
-//   let old_position = dotList[0].geometry.getAttribute("position").array[2];
-//   let new_position =
-//     initial_pos[2] +
-//     ((old_position - initial_pos[2]) * (new_value - initial_pos[2])) /
-//       (final_pos[2] - initial_pos[2]);
-
-//   let translate_M = new THREE.Matrix4();
-//   translate_M.makeTranslation(0, 0, new_position - old_position);
-//   dotList[0].geometry.applyMatrix4(translate_M);
-//   dotList[0].geometry.verticesNeedUpdate = true;
-
-//   document.getElementById("quantityz").value =
-//     dotList[0].geometry.getAttribute("position").array[2];
-//   final_pos[2] = new_value;
-// };
-
-// document.getElementById("frames").onchange = function () {
-//   let new_value = document.getElementById("frames").value; // new value
-//   let cur_pos = new Array();
-//   for (let i = 0; i < 3; i++) {
-//     cur_pos[i] = dotList[0].geometry.getAttribute("position").array[i];
-//   }
-
-//   document.getElementById("quantityx").value =
-//     initial_pos[0] +
-//     parseFloat(((cur_pos[0] - initial_pos[0]) * frames) / new_value);
-//   document.getElementById("quantityy").value =
-//     initial_pos[1] +
-//     parseFloat(((cur_pos[1] - initial_pos[1]) * frames) / new_value);
-//   document.getElementById("quantityz").value =
-//     initial_pos[2] +
-//     parseFloat(((cur_pos[2] - initial_pos[2]) * frames) / new_value);
-
-//   let translate_M = new THREE.Matrix4();
-//   translate_M.makeTranslation(
-//     document.getElementById("quantityx").value - cur_pos[0],
-//     document.getElementById("quantityy").value - cur_pos[1],
-//     document.getElementById("quantityz").value - cur_pos[2]
-//   );
-//   dotList[0].geometry.applyMatrix4(translate_M);
-//   dotList[0].geometry.verticesNeedUpdate = true;
-
-//   slider.step =
-//     (document.getElementById("slider").max -
-//       document.getElementById("slider").min) /
-//     document.getElementById("frames").value;
-//   let no_of_frames = frames * (slider.value / slider.max);
-//   slider.value =
-//     document.getElementById("slider").max * (no_of_frames / new_value);
-//   frames = new_value;
-// };
-
-
-
-
-
-
-
-
-
-
-function createLabel(text, direction, length) {
-  const fontLoader = new THREE.FontLoader();
-  let labelMesh;
-
-  fontLoader.load(
-    "https://threejs.org/examples/fonts/helvetiker_regular.typeface.json",
-    function (font) {
-      const geometry = new THREE.TextGeometry(text, {
-        font: font,
-        size: 0.6,
-        height: 0.1,
-      });
-      const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-      labelMesh = new THREE.Mesh(geometry, material);
-
-      // Position the label at the end of the arrow (tip of the arrow)
-      const labelPosition = direction.clone().multiplyScalar(length);
-      labelMesh.position.copy(labelPosition);
-      scene.add(labelMesh);
     }
-  );
-
-  return labelMesh;
+  });
+  
+  // Update shape list display
+  updateShapeList(shapeList);
 }
 
+function createLabel(text, position) {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  canvas.width = 256;
+  canvas.height = 64;
+  context.font = 'Bold 40px Arial';
+  context.fillStyle = 'white';
+  context.fillText(text, 0, 40);
+  
+  const texture = new THREE.CanvasTexture(canvas);
+  const material = new THREE.SpriteMaterial({ map: texture });
+  const sprite = new THREE.Sprite(material);
+  sprite.position.copy(position);
+  sprite.scale.set(2, 0.5, 1);
+  return sprite;
+}
+
+// Instructions toggle handlers
 const toggleInstructions = document.getElementById("toggle-instructions");
 const procedureMessage = document.getElementById("procedure-message");
 
@@ -1015,30 +626,38 @@ procedureMessage.addEventListener("click", (event) => {
   event.stopPropagation(); // Prevent the click inside from closing the overlay
 });
 
-
-
-
-scene = new THREE.Scene();
-scene.background = new THREE.Color(0x333333);
-camera = new THREE.PerspectiveCamera(
-  30,
-  window.innerWidth / window.innerHeight,
-  1,
-  1000
-);
 let init = function () {
-  camera.position.set(25, 25, 25); // Set camera position behind and above the origin
+  // Initialize arrays
+  shapes = [];
+  shapeList = [];
+  point = [];
+  shapeVertex = [];
+  dragX = [];
+  dragY = [];
+  dragZ = [];
+  arrowHelper = [];
+  xygrid = [];
+  yzgrid = [];
+  xzgrid = [];
+  dir = [];
+  shapeCount = [0, 0, 0, 0];
 
-  camera.lookAt(10, 10, 5); // Make the camera focus on the center (origin) of the scene
-
-  // const light = new THREE.DirectionalLight(0xffffff, 3);
-  // light.position.set(1, 1, 1).normalize();
-  // scene.add(light);
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x333333);
+  
+  camera = new THREE.PerspectiveCamera(
+    30,
+    window.innerWidth / window.innerHeight,
+    1,
+    1000
+  );
+  camera.position.set(25, 25, 25);
+  camera.lookAt(10, 10, 5);
 
   const gridHelper = new THREE.GridHelper(size, divisions);
-  const count = 1;
-  const arrowHelper = [];
-  const dir = [
+  scene.add(gridHelper);
+
+  dir = [
     new THREE.Vector3(1, 0, 0), // +X
     new THREE.Vector3(0, 1, 0), // +Y
     new THREE.Vector3(0, 0, 1), // +Z
@@ -1047,33 +666,30 @@ let init = function () {
     new THREE.Vector3(0, 0, -1), // -Z
   ];
 
-  const labels = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]; // Labels for each axis
+  const labels = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"];
   const origin = new THREE.Vector3(0, 0, 0);
   const length = 10;
 
-  // Loop through the axes
   for (let i = 0; i < 6; i++) {
-    // Determine color based on the direction
     let color;
     if (i === 0 || i === 3) {
-      color = "red"; // +X and -X axes
+      color = "red";
     } else if (i === 1 || i === 4) {
-      color = "yellow"; // +Y and -Y axes
+      color = "yellow";
     } else {
-      color = "blue"; // +Z and -Z axes
+      color = "blue";
     }
 
-    // Create the arrow helper for the current direction and color
     arrowHelper[i] = new THREE.ArrowHelper(dir[i], origin, length, color);
     scene.add(arrowHelper[i]);
 
-    // Create label for each axis and position it at the tip of the arrow
-    const label = createLabel(labels[i], dir[i], length);
+    const labelPosition = dir[i].clone().multiplyScalar(length + 1);
+    const label = createLabel(labels[i], labelPosition);
     scene.add(label);
   }
 
-  // Create 4 cubes at different positions
-  createCube(
+  // Create initial shapes
+  const cube = createCube(
     0,
     0,
     0,
@@ -1085,10 +701,13 @@ let init = function () {
     shapeVertex,
     dragX,
     dragY,
-    dragz
+    dragZ
   );
+  if (!cube) {
+    console.error('Failed to create cube');
+  }
 
-  createTetrahedron(
+  const tetrahedron = createTetrahedron(
     4,
     5,
     2,
@@ -1100,25 +719,13 @@ let init = function () {
     shapeVertex,
     dragX,
     dragY,
-    dragz
+    dragZ
   );
+  if (!tetrahedron) {
+    console.error('Failed to create tetrahedron');
+  }
 
-  // createDodecahedron(
-  //   0,
-  //   0,
-  //   6,
-  //   shapes,
-  //   shapeList,
-  //   shapeCount,
-  //   scene,
-  //   point,
-  //   shapeVertex,
-  //   dragX,
-  //   dragY,
-  //   dragz
-  // );
-
-  createOctahedron(
+  const octahedron = createOctahedron(
     7,
     5,
     -5,
@@ -1130,16 +737,20 @@ let init = function () {
     shapeVertex,
     dragX,
     dragY,
-    dragz
+    dragZ
   );
-  updateShapeList(shapeList); // Update the UI
+  if (!octahedron) {
+    console.error('Failed to create octahedron');
+  }
 
-  // let PointGeometry = dot(scene, dotList, initial_pos);
-  renderer = new THREE.WebGLRenderer();
+  updateShapeList(shapeList);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true });
   let w = container.offsetWidth;
   let h = container.offsetHeight;
   renderer.setSize(w, 0.83 * h);
   container.appendChild(renderer.domElement);
+
   orbit = new OrbitControls(camera, renderer.domElement);
   orbit.mouseButtons = {
     LEFT: MOUSE.PAN,
@@ -1148,13 +759,147 @@ let init = function () {
   };
   orbit.target.set(0, 0, 0);
   orbit.enableDamping = true;
+  orbit.dampingFactor = 0.05;
 };
 
 let mainLoop = function () {
-  orbit.update(); // Important for damping
-  camera.updateMatrixWorld();
-  renderer.render(scene, camera);
   requestAnimationFrame(mainLoop);
+  orbit.update();
+  renderer.render(scene, camera);
 };
+
 init();
 mainLoop();
+
+// Add shape button click handler
+window.addShape = function() {
+  modalAdd.style.display = "block";
+};
+
+// Edit shape button click handler
+window.editShape = function() {
+  modalEdit.style.display = "block";
+};
+
+// Delete shape button click handler
+window.deleteShape = function() {
+  const selectedShape = shapes.find(shape => shape.userData.selected);
+  if (selectedShape) {
+    const index = shapes.indexOf(selectedShape);
+    scene.remove(selectedShape);
+    shapes.splice(index, 1);
+    shapeList.splice(index, 1);
+    updateShapeList(shapeList);
+  }
+};
+
+// Translation form submit handler
+document.getElementById('translation-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  final_pos = [
+    parseFloat(document.getElementById("finalx").value),
+    parseFloat(document.getElementById("finaly").value),
+    parseFloat(document.getElementById("finalz").value)
+  ];
+  applyTranslation();
+});
+
+// Reset all button click handler
+document.getElementById('reset-all-btn').addEventListener('click', function() {
+  window.location.reload();
+});
+
+// Modal close button handlers
+document.querySelectorAll('.close').forEach(button => {
+  button.addEventListener('click', function() {
+    modalAdd.style.display = "none";
+    modalEdit.style.display = "none";
+  });
+});
+
+// Close modals when clicking outside
+window.addEventListener('click', function(event) {
+  if (event.target === modalAdd) {
+    modalAdd.style.display = "none";
+  }
+  if (event.target === modalEdit) {
+    modalEdit.style.display = "none";
+  }
+});
+
+// Shape add button handler
+document.querySelector('.add-button').addEventListener('click', function() {
+  const shapeType = document.getElementById('shape-add-dropdown').value;
+  const x = parseFloat(document.getElementById('x1').value);
+  const y = parseFloat(document.getElementById('y1').value);
+  const z = parseFloat(document.getElementById('z1').value);
+
+  switch(shapeType) {
+    case 'Cube':
+      createCube(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
+      break;
+    case 'Dodecahedron':
+      createDodecahedron(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
+      break;
+    case 'Octahedron':
+      createOctahedron(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
+      break;
+    case 'Tetrahedron':
+      createTetrahedron(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
+      break;
+  }
+
+  updateShapeList(shapeList);
+  modalAdd.style.display = "none";
+});
+
+// Shape edit button handler
+document.querySelector('.edit-button').addEventListener('click', function() {
+  const selectedShape = shapes.find(shape => shape.userData.selected);
+  if (selectedShape) {
+    const shapeType = document.getElementById('shape-edit-dropdown').value;
+    const x = parseFloat(document.getElementById('x').value);
+    const y = parseFloat(document.getElementById('y').value);
+    const z = parseFloat(document.getElementById('z').value);
+
+    selectedShape.position.set(x, y, z);
+    const index = shapes.indexOf(selectedShape);
+    shapeList[index].x = x;
+    shapeList[index].y = y;
+    shapeList[index].z = z;
+
+    updateShapeList(shapeList);
+    modalEdit.style.display = "none";
+  }
+});
+
+// Window resize handler
+window.addEventListener('resize', function() {
+  const width = container.offsetWidth;
+  const height = container.offsetHeight;
+  
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+  
+  renderer.setSize(width, 0.83 * height);
+});
+
+// Matrix input field handlers
+const matrixInputs = document.querySelectorAll('input[id^="matrix-"]');
+matrixInputs.forEach(input => {
+  input.addEventListener('change', function() {
+    const [row, col] = this.id.split('-').slice(1).map(Number);
+    const index = row * 4 + col;
+    trans_matrix.elements[index] = parseFloat(this.value);
+  });
+});
+
+// Translation vector input field handlers
+const translationInputs = ['finalx', 'finaly', 'finalz'].map(id => document.getElementById(id));
+translationInputs.forEach(input => {
+  input.addEventListener('change', function() {
+    const index = ['finalx', 'finaly', 'finalz'].indexOf(this.id);
+    final_pos[index] = parseFloat(this.value);
+    applyTranslation();
+  });
+});
