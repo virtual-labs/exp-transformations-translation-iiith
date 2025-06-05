@@ -239,11 +239,11 @@ function handleSelect(event) {
     selectedShape.add(outline);
     selectedShape.userData.outline = outline;
 
-    // Update edit modal with shape's current position
+    // Update edit modal with shape's current position and type
     document.getElementById('x').value = selectedShape.position.x;
     document.getElementById('y').value = selectedShape.position.y;
     document.getElementById('z').value = selectedShape.position.z;
-    document.getElementById('shape-edit-dropdown').value = selectedShape.name;
+    document.getElementById('current-shape-type').textContent = selectedShape.name;
 
     // Update result coordinates display
     const resultCoords = document.getElementById('result-coordinates');
@@ -401,78 +401,80 @@ document.getElementById("add-shape-btn").onclick = function () {
   modalbutton2.addEventListener("click", handleShapeAddition);
 };
 
+// Shape add button handler
+document.querySelector('.add-button').addEventListener('click', function() {
+  const shapeType = document.getElementById('shape-add-dropdown').value;
+  const x = parseFloat(document.getElementById('x1').value);
+  const y = parseFloat(document.getElementById('y1').value);
+  const z = parseFloat(document.getElementById('z1').value);
+
+  // Validate coordinates
+  if (isNaN(x) || isNaN(y) || isNaN(z)) {
+    alert('Please enter valid numeric coordinates');
+    return;
+  }
+
+  let shapeCreated = false;
+  switch(shapeType) {
+    case 'Cube':
+      shapeCreated = createCube(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
+      break;
+    case 'Dodecahedron':
+      shapeCreated = createDodecahedron(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
+      break;
+    case 'Octahedron':
+      shapeCreated = createOctahedron(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
+      break;
+    case 'Tetrahedron':
+      shapeCreated = createTetrahedron(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
+      break;
+  }
+
+  if (shapeCreated) {
+    updateShapeList(shapeList);
+    modalAdd.style.display = "none";
+  } else {
+    alert('Failed to create shape. Please check the coordinates.');
+  }
+});
+
 // Function to handle shape addition
 function handleShapeAddition() {
-  let xcoord = document.getElementById("x1").value;
-  let ycoord = document.getElementById("y1").value;
-  let zcoord = document.getElementById("z1").value;
-  noOfShapes++;
-
-  const shapeType = document.getElementById("shape-add-dropdown").value;
-
-  if (shapeType === "Cube") {
-    createCube(
-      xcoord,
-      ycoord,
-      zcoord,
-      shapes,
-      shapeList,
-      shapeCount,
-      scene,
-      point,
-      shapeVertex,
-      dragX,
-      dragY,
-      dragZ
-    );
-  } else if (shapeType === "Tetrahedron") {
-    createTetrahedron(
-      xcoord,
-      ycoord,
-      zcoord,
-      shapes,
-      shapeList,
-      shapeCount,
-      scene,
-      point,
-      shapeVertex,
-      dragX,
-      dragY,
-      dragZ
-    );
-  } else if (shapeType === "Octahedron") {
-    createOctahedron(
-      xcoord,
-      ycoord,
-      zcoord,
-      shapes,
-      shapeList,
-      shapeCount,
-      scene,
-      point,
-      shapeVertex,
-      dragX,
-      dragY,
-      dragZ
-    );
-  } else if (shapeType === "Dodecahedron") {
-    createDodecahedron(
-      xcoord,
-      ycoord,
-      zcoord,
-      shapes,
-      shapeList,
-      shapeCount,
-      scene,
-      point,
-      shapeVertex,
-      dragX,
-      dragY,
-      dragZ
-    );
+  let xcoord = parseFloat(document.getElementById("x1").value);
+  let ycoord = parseFloat(document.getElementById("y1").value);
+  let zcoord = parseFloat(document.getElementById("z1").value);
+  
+  // Validate coordinates
+  if (isNaN(xcoord) || isNaN(ycoord) || isNaN(zcoord)) {
+    alert('Please enter valid numeric coordinates');
+    return;
   }
-  updateShapeList(shapeList); // Update the UI
+
+  noOfShapes++;
+  const shapeType = document.getElementById("shape-add-dropdown").value;
+  let shapeCreated = false;
+
+  switch(shapeType) {
+    case 'Cube':
+      shapeCreated = createCube(xcoord, ycoord, zcoord, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
+      break;
+    case 'Dodecahedron':
+      shapeCreated = createDodecahedron(xcoord, ycoord, zcoord, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
+      break;
+    case 'Octahedron':
+      shapeCreated = createOctahedron(xcoord, ycoord, zcoord, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
+      break;
+    case 'Tetrahedron':
+      shapeCreated = createTetrahedron(xcoord, ycoord, zcoord, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
+      break;
+  }
+
+  if (shapeCreated) {
+    updateShapeList(shapeList);
   addModal.style.display = "none";
+  } else {
+    alert('Failed to create shape. Please check the coordinates.');
+  }
 }
 
 let planeIntersect = new THREE.Vector3();
@@ -488,8 +490,14 @@ spanEditModal.onclick = function () {
 };
 
 // Apply Translation function
-
 function applyTranslation() {
+  // Check if any shape is selected
+  const selectedShape = shapes.find(shape => shape.userData.selected);
+  if (!selectedShape) {
+    alert('Select a shape first');
+    return;
+  }
+
   // Update transformation matrix
   trans_matrix.set(
     1, 0, 0, final_pos[0],
@@ -498,35 +506,22 @@ function applyTranslation() {
     0, 0, 0, 1
   );
 
-  // Update matrix input fields with better formatting
-  const matrixContainer = document.getElementById('matrix-container');
-  if (matrixContainer) {
-    matrixContainer.innerHTML = `
-      <div class="matrix-row">
-        <input type="number" value="${trans_matrix.elements[0].toFixed(2)}" readonly>
-        <input type="number" value="${trans_matrix.elements[1].toFixed(2)}" readonly>
-        <input type="number" value="${trans_matrix.elements[2].toFixed(2)}" readonly>
-        <input type="number" value="${trans_matrix.elements[3].toFixed(2)}" readonly>
-      </div>
-      <div class="matrix-row">
-        <input type="number" value="${trans_matrix.elements[4].toFixed(2)}" readonly>
-        <input type="number" value="${trans_matrix.elements[5].toFixed(2)}" readonly>
-        <input type="number" value="${trans_matrix.elements[6].toFixed(2)}" readonly>
-        <input type="number" value="${trans_matrix.elements[7].toFixed(2)}" readonly>
-      </div>
-      <div class="matrix-row">
-        <input type="number" value="${trans_matrix.elements[8].toFixed(2)}" readonly>
-        <input type="number" value="${trans_matrix.elements[9].toFixed(2)}" readonly>
-        <input type="number" value="${trans_matrix.elements[10].toFixed(2)}" readonly>
-        <input type="number" value="${trans_matrix.elements[11].toFixed(2)}" readonly>
-      </div>
-      <div class="matrix-row">
-        <input type="number" value="${trans_matrix.elements[12].toFixed(2)}" readonly>
-        <input type="number" value="${trans_matrix.elements[13].toFixed(2)}" readonly>
-        <input type="number" value="${trans_matrix.elements[14].toFixed(2)}" readonly>
-        <input type="number" value="${trans_matrix.elements[15].toFixed(2)}" readonly>
-      </div>
-    `;
+  console.log('Translation Matrix Updated:');
+  console.log('Translation Vector:', final_pos);
+  console.log('Matrix Elements:', trans_matrix.elements);
+
+  // Show the matrix display and result coordinates
+  document.getElementById('matrix-display').style.display = 'block';
+  document.getElementById('result-coordinates').style.display = 'block';
+
+  // Update matrix input fields
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 4; j++) {
+      const element = document.getElementById(`matrix-${i}${j}`);
+      if (element) {
+        element.value = trans_matrix.elements[i * 4 + j].toFixed(2);
+      }
+    }
   }
 }
 
@@ -546,23 +541,56 @@ function movePoint(e) {
   // Only move selected shapes
   shapes.forEach((shape, index) => {
     if (shape.userData.selected) {
-      // Calculate new position based on translation vector and slider value
-      const newX = dragX[index] + final_pos[0] * sliderValue;
-      const newY = dragY[index] + final_pos[1] * sliderValue;
-      const newZ = dragZ[index] + final_pos[2] * sliderValue;
+      // Create a transformation matrix for the current translation
+      const translationMatrix = new THREE.Matrix4();
+      translationMatrix.set(
+        1, 0, 0, final_pos[0] * sliderValue,
+        0, 1, 0, final_pos[1] * sliderValue,
+        0, 0, 1, final_pos[2] * sliderValue,
+        0, 0, 0, 1
+      );
+
+      console.log('Current Slider Value:', sliderValue);
+      console.log('Current Translation Matrix:', translationMatrix.elements);
+
+      // Get the original position
+      const originalPosition = new THREE.Vector3(dragX[index], dragY[index], dragZ[index]);
+      console.log('Original Position:', originalPosition);
       
-      // Update shape position
-      shape.position.set(newX, newY, newZ);
+      // Create a position vector with homogeneous coordinates
+      const positionVector = new THREE.Vector4(
+        originalPosition.x,
+        originalPosition.y,
+        originalPosition.z,
+        1
+      );
+
+      // Apply the transformation matrix
+      positionVector.applyMatrix4(translationMatrix);
+      console.log('Transformed Position:', positionVector);
+
+      // Update shape position with the transformed coordinates
+      shape.position.set(positionVector.x, positionVector.y, positionVector.z);
       
       // Update shape list
-      shapeList[index].x = newX;
-      shapeList[index].y = newY;
-      shapeList[index].z = newZ;
+      shapeList[index].x = positionVector.x;
+      shapeList[index].y = positionVector.y;
+      shapeList[index].z = positionVector.z;
 
       // Update result coordinates display
       const resultCoords = document.getElementById('result-coordinates');
       if (resultCoords) {
-        resultCoords.textContent = `Result: (${newX.toFixed(2)}, ${newY.toFixed(2)}, ${newZ.toFixed(2)})`;
+        resultCoords.textContent = `Result: (${positionVector.x.toFixed(2)}, ${positionVector.y.toFixed(2)}, ${positionVector.z.toFixed(2)})`;
+      }
+
+      // Update matrix display with current transformation
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+          const element = document.getElementById(`matrix-${i}${j}`);
+          if (element) {
+            element.value = translationMatrix.elements[i * 4 + j].toFixed(2);
+          }
+        }
       }
     }
   });
@@ -642,20 +670,35 @@ let init = function () {
   dir = [];
   shapeCount = [0, 0, 0, 0];
 
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x333333);
+scene = new THREE.Scene();
+scene.background = new THREE.Color(0x333333);
   
-  camera = new THREE.PerspectiveCamera(
-    30,
-    window.innerWidth / window.innerHeight,
-    1,
-    1000
-  );
+camera = new THREE.PerspectiveCamera(
+  30,
+  window.innerWidth / window.innerHeight,
+  1,
+  1000
+);
   camera.position.set(25, 25, 25);
   camera.lookAt(10, 10, 5);
 
+  // Create grid helper but don't add it to scene by default
   const gridHelper = new THREE.GridHelper(size, divisions);
-  scene.add(gridHelper);
+  // scene.add(gridHelper); // Commented out to hide grid by default
+
+  // Initialize translation values
+  final_pos = [3, 2, 1]; // Updated default values
+  document.getElementById("finalx").value = final_pos[0];
+  document.getElementById("finaly").value = final_pos[1];
+  document.getElementById("finalz").value = final_pos[2];
+
+  // Initialize transformation matrix with default values
+  trans_matrix.set(
+    1, 0, 0, final_pos[0],
+    0, 1, 0, final_pos[1],
+    0, 0, 1, final_pos[2],
+    0, 0, 0, 1
+  );
 
   dir = [
     new THREE.Vector3(1, 0, 0), // +X
@@ -688,7 +731,7 @@ let init = function () {
     scene.add(label);
   }
 
-  // Create initial shapes
+  // Create initial shapes with proper number conversion
   const cube = createCube(
     0,
     0,
@@ -778,6 +821,13 @@ window.addShape = function() {
 
 // Edit shape button click handler
 window.editShape = function() {
+  // Check if any shape is selected
+  const selectedShape = shapes.find(shape => shape.userData.selected);
+  if (!selectedShape) {
+    alert('Select a shape first');
+    return;
+  }
+  
   modalEdit.style.display = "block";
 };
 
@@ -827,37 +877,10 @@ window.addEventListener('click', function(event) {
   }
 });
 
-// Shape add button handler
-document.querySelector('.add-button').addEventListener('click', function() {
-  const shapeType = document.getElementById('shape-add-dropdown').value;
-  const x = parseFloat(document.getElementById('x1').value);
-  const y = parseFloat(document.getElementById('y1').value);
-  const z = parseFloat(document.getElementById('z1').value);
-
-  switch(shapeType) {
-    case 'Cube':
-      createCube(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
-      break;
-    case 'Dodecahedron':
-      createDodecahedron(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
-      break;
-    case 'Octahedron':
-      createOctahedron(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
-      break;
-    case 'Tetrahedron':
-      createTetrahedron(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
-      break;
-  }
-
-  updateShapeList(shapeList);
-  modalAdd.style.display = "none";
-});
-
 // Shape edit button handler
 document.querySelector('.edit-button').addEventListener('click', function() {
   const selectedShape = shapes.find(shape => shape.userData.selected);
   if (selectedShape) {
-    const shapeType = document.getElementById('shape-edit-dropdown').value;
     const x = parseFloat(document.getElementById('x').value);
     const y = parseFloat(document.getElementById('y').value);
     const z = parseFloat(document.getElementById('z').value);
@@ -903,3 +926,8 @@ translationInputs.forEach(input => {
     applyTranslation();
   });
 });
+
+// Update the grid event listeners to start unchecked
+xyGrid.checked = false;
+yzGrid.checked = false;
+xzGrid.checked = false;
