@@ -1,7 +1,7 @@
 ### References
 
 1. **3D Transformations and Matrices:**
-   - [Wikipedia: Translation Matrix](https://en.wikipedia.org/wiki/Translation_(geometry))
+- [Wikipedia: Translation Matrix](https://en.wikipedia.org/wiki/Translation_(geometry)) 
    - [3D Math Primer for Graphics and Game Development](https://gamemath.com/book/intro.html)
    - [Interactive 3D Graphics Course](https://www.udacity.com/course/interactive-3d-graphics--cs291)
 

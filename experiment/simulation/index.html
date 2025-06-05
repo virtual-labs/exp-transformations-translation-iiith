@@ -80,6 +80,10 @@
                                         style="color: #970473;font-size: 18px;">Select</strong>
                                     button.
                                 </li>
+                                <li>
+                                    <strong>⚠️ Important:</strong> You must select a shape before using the <strong
+                                        style="color: #48c774; font-size: 18px;">Edit</strong> button or applying translation.
+                                </li>
                             </ul>
                         </li>
                         <li><strong>Edit Shape:</strong> After selecting a shape, click the <strong
@@ -115,8 +119,10 @@
                     <strong>Y</strong>, and <strong>Z</strong> axes in 3D space.
                     <ul style="list-style-type: disc; padding-left: 20px;">
                         <li>
-                            <strong style="color:#1976D2">Apply Translation:</strong> Click to apply the specified translation factors to the current shapes. The changes will become visible only after moving the slider.
-                
+                            <strong style="color:#1976D2">Apply Translation:</strong> Click to apply the specified translation factors to the selected shape. The changes will become visible only after moving the slider.
+                            <ul style="list-style-type: disc; padding-left: 20px;">
+                                <li><strong>⚠️ Note:</strong> You must select a shape before applying translation.</li>
+                            </ul>
                         </li>
                     </ul>
                 </li>
@@ -206,13 +212,8 @@
                         <div class="modal-content">
                             <span class="close">&times;</span>
                             <p class="v-datalist-title"> Edit Shape Menu</p>
-                            <div class="select" style="display: inline-block; margin: 0.5rem">
-                                <select name="" id="shape-edit-dropdown" value="dropdown">
-                                    <option value="Cube">Cube</option>
-                                    <option value="Tetrahedron">Tetrahedron</option>
-                                    <option value="Octahedron">Octahedron</option>
-                                    <option value="Dodecahedron">Dodecahedron</option>
-                                </select>
+                            <div style="margin: 0.5rem">
+                                <p>Shape Type: <span id="current-shape-type" style="font-weight: bold;"></span></p>
                             </div>
 
                             <div style="display: block; margin: auto">
@@ -228,7 +229,6 @@
                                     style="width: 10rem; margin: 1rem;">Edit</button>
                             </div>
                         </div>
-
                     </section>
 
                     <section id="add-modal" class="modal is-responsive is-centered">
@@ -240,7 +240,6 @@
                                     <option value="Cube">Cube</option>
                                     <option value="Tetrahedron">Tetrahedron</option>
                                     <option value="Octahedron">Octahedron</option>
-                                    <option value="Dodecahedron">Dodecahedron</option>
                                 </select>
                             </div>
 
@@ -305,52 +304,50 @@
 
                 <div class="v-datalist-title" style="font-size: 22px;">Transformation Matrix</div>
                 <br>
-                <div style="display: flexbox;">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-00" value="1"
-                        placeholder="X">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-01" value="0"
-                        placeholder="X">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-02" value="0"
-                        placeholder="X">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-03" value="0"
-                        placeholder="X">
-                </div>
-                <div style="display: flexbox;">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-10" value="0"
-                        placeholder="X">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-11" value="1"
-                        placeholder="X">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-12" value="0"
-                        placeholder="X">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-13" value="0"
-                        placeholder="X">
-                </div>
-                <div style="display: flexbox;">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-20" value="0"
-                        placeholder="X">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-21" value="0"
-                        placeholder="X">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-22" value="1"
-                        placeholder="X">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-23" value="0"
-                        placeholder="X">
-                </div>
-                <div style="display: flexbox;">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-30" value="0"
-                        placeholder="X">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-31" value="0"
-                        placeholder="X">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-32" value="0"
-                        placeholder="X">
-                    <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-33" value="1"
-                        placeholder="X">
+                <div id="matrix-display" style="display: none;">
+                    <div style="display: flexbox;">
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-00" value="1"
+                            placeholder="X" readonly>
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-01" value="0"
+                            placeholder="X" readonly>
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-02" value="0"
+                            placeholder="X" readonly>
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-03" value="0"
+                            placeholder="X" readonly>
+                    </div>
+                    <div style="display: flexbox;">
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-10" value="0"
+                            placeholder="X" readonly>
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-11" value="1"
+                            placeholder="X" readonly>
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-12" value="0"
+                            placeholder="X" readonly>
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-13" value="0"
+                            placeholder="X" readonly>
+                    </div>
+                    <div style="display: flexbox;">
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-20" value="0"
+                            placeholder="X" readonly>
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-21" value="0"
+                            placeholder="X" readonly>
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-22" value="1"
+                            placeholder="X" readonly>
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-23" value="0"
+                            placeholder="X" readonly>
+                    </div>
+                    <div style="display: flexbox;">
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-30" value="0"
+                            placeholder="X" readonly>
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-31" value="0"
+                            placeholder="X" readonly>
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-32" value="0"
+                            placeholder="X" readonly>
+                        <input class="input is-responsive is-small" style="width:20%" type="number" id="matrix-33" value="1"
+                            placeholder="X" readonly>
+                    </div>
                 </div>
 
-                <div id="result-coordinates">Result: (0.00, 0.00, 0.00)</div>
-
-                <div id="matrix-container">
-                  <!-- Matrix will be populated by JavaScript -->
-                </div>
+                <div id="result-coordinates" style="display: none;">Result: (0.00, 0.00, 0.00)</div>
 
                 <div>
                     <!-- <div class="v-datalist-title-experiment" style="font-size: 20px;">Experiment Controls</div>
@@ -363,20 +360,20 @@
                     <div class="v-datalist-title" style="padding-top: 25px;font-size: 24px;">Translation Vector</div>
                     <form id="translation-form">
                         <label for="finalx">x</label>
-                        <input type="number" id="finalx" name="finalx" step=".01" value="2"
+                        <input type="number" id="finalx" name="finalx" step=".01" value="3"
                             class="input is-responsive is-small" style="width:25%">
                         <label for="finaly">y</label>
-                        <input type="number" id="finaly" name="finaly" step=".01" value="1"
+                        <input type="number" id="finaly" name="finaly" step=".01" value="2"
                             class="input is-responsive is-small" style="width:25%">
                         <label for="finalz">z</label>
-                        <input type="number" id="finalz" name="finalz" step=".01" value="0"
+                        <input type="number" id="finalz" name="finalz" step=".01" value="1"
                             class="input is-responsive is-small" style="width:25%">
-                        <button type="submit" id="apply-translation-btn" class="v-button is-responsive is-small">Apply
-                            Translation</button>
+                        <div style="display: center; margin-top: 10px;">
+                            <button type="submit" id="apply-translation-btn" class="v-button is-responsive is-small" style="margin:0.25rem;">Apply Translation</button>
+                            <button type="button" id="reset-all-btn" class="v-button is-responsive is-small" style="margin:0.25rem;"
+                                onclick="window.location.reload();">Reset All</button>
+                        </div>
                     </form>
-
-                    <button type="button" id="reset-all-btn" class="v-button is-responsive is-small"
-                        onclick="window.location.reload();">Reset All</button>
                     <div style="padding-top: 10px;">
                     </div>
                 </div>

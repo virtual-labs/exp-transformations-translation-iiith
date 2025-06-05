@@ -82,7 +82,7 @@
     }
     .slider-container {
         margin-top: -60px;
-        margin-bottom: 80px; /* Add bottom margin to prevent overlap with logo */
+        margin-bottom: 80px;
     }
     .axis-change{
         display: flex;
@@ -90,28 +90,26 @@
     }
     .left {
         order: 1;
-        width: 100% !important; /* Force full width on mobile */
-        margin-bottom: 20px; /* Add spacing between columns */
+        width: 100% !important;
+        margin-bottom: 20px;
     }
 
     .right {
         order: 2;
-        width: 100% !important; /* Force full width on mobile */
-        margin-bottom: 20px; /* Add spacing between columns */
+        width: 100% !important;
+        margin-bottom: 20px;
     }
 
     .exp {
         order: 3;
-        width: 100% !important; /* Force full width on mobile */
+        width: 100% !important;
     }
 
-    /* Adjust workspace container for mobile */
     .workspace {
         flex-direction: column !important;
         align-items: center !important;
     }
 
-    /* Ensure both left and right columns have the same width and styling */
     #left.apparatus, #observations.right {
         width: 100% !important;
         height: auto !important;
@@ -119,6 +117,70 @@
         overflow-y: auto;
         padding: 15px;
         margin: 0 10px;
+    }
+
+    /* Fix modal styles for mobile */
+    .modal {
+        padding: 0;
+        margin: 0;
+    }
+
+    .modal-content {
+        width: 90% !important;
+        max-width: none !important;
+        margin: 10% auto !important;
+        padding: 15px;
+        box-sizing: border-box;
+        position: relative;
+        left: 0;
+        transform: none;
+    }
+
+    #add-modal, #edit-modal {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Adjust input and button sizes */
+    .modal-content .input {
+        width: 80px !important;
+        margin: 5px auto !important;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    /* Specific style for shape dropdown in add modal */
+    #add-modal .select,
+    #add-modal #shape-add-dropdown {
+        width: 160px !important; /* Increased width to be wider than "Dodecahedron" */
+        margin: 5px auto !important;
+        text-align: center;
+    }
+
+    .modal-content .coord-dim {
+        width: 80px !important;
+        margin: 5px auto !important;
+        text-align: center;
+    }
+
+    .modal-content .v-button {
+        width: auto !important;
+        min-width: fit-content !important;
+        margin: 10px auto !important;
+        display: block;
+    }
+
+    /* Center the shape type text */
+    .modal-content .v-datalist-title {
+        text-align: center;
+    }
+
+    /* Center the current shape type display */
+    .modal-content #current-shape-type {
+        display: block;
+        text-align: center;
+        margin: 5px 0;
     }
 }
 

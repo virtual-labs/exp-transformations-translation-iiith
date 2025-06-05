@@ -211,79 +211,161 @@ export const createDodecahedron = function (
   // Debug check for input parameters
   if (typeof x !== 'number' || typeof y !== 'number' || typeof z !== 'number') {
     console.error('Invalid position coordinates:', { x, y, z });
-    return;
+    return null;
   }
   if (!Array.isArray(shapes) || !Array.isArray(shapeList) || !Array.isArray(shapeCount)) {
     console.error('Invalid array parameters:', { shapes, shapeList, shapeCount });
-    return;
+    return null;
   }
   if (!scene || !Array.isArray(point) || !Array.isArray(shapeVertex)) {
     console.error('Invalid scene or array parameters:', { scene, point, shapeVertex });
-    return;
+    return null;
   }
   if (!Array.isArray(dragX) || !Array.isArray(dragY) || !Array.isArray(dragZ)) {
     console.error('Invalid drag arrays:', { dragX, dragY, dragZ });
-    return;
+    return null;
   }
 
-  const geometry = new THREE.DodecahedronGeometry(1);
-  const material = materials.cubeShader;
-  const cub = new THREE.Mesh(geometry, material);
-  
-  cub.position.set(x, y, z);
-  cub.name = "Dodecahedron";
-  cub.userData.id = `Dodecahedron-${shapeCount[1]}`;
-  cub.userData.selected = false;
-  
-  // Add to scene first
-  scene.add(cub);
-  shapes.push(cub);
+  let geometry, material, cub;
 
-  // Add to shapeList
-  shapeList.push({
-    id: cub.userData.id,
-    x: parseInt(x, 10),
-    y: parseInt(y, 10),
-    z: parseInt(z, 10),
-  });
-  shapeCount[1]++;
-
-  // Add edges
-  const edgesGeometry = new THREE.EdgesGeometry(geometry);
-  const edgesMaterial = new THREE.LineBasicMaterial({
-    color: 0xffffff,
-    linewidth: 2,
-  });
-  const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-  cub.add(edges);
-
-  // Add vertices as points
-  const positions = geometry.attributes.position;
-  for (let i = 0; i < positions.count; i++) {
-    const vertex = new THREE.Vector3();
-    vertex.fromBufferAttribute(positions, i);
-    
-    const dotGeometry = new THREE.BufferGeometry();
-    dotGeometry.setAttribute('position', new THREE.Float32BufferAttribute([vertex.x, vertex.y, vertex.z], 3));
-    
-    const dotMaterial = new THREE.PointsMaterial({
-      color: "white",
-      size: 6,
-      sizeAttenuation: false,
-    });
-    
-    const dot = new THREE.Points(dotGeometry, dotMaterial);
-    point.push(dot);
-    
-    if (i === 0) {
-      shapeVertex.push(dot);
+  try {
+    console.log('Creating dodecahedron geometry...');
+    // Create geometry with explicit parameters
+    geometry = new THREE.DodecahedronGeometry(1, 0);
+    if (!geometry) {
+      throw new Error('Failed to create geometry');
     }
-  }
+    console.log('Geometry created:', geometry);
 
-  // Store initial position for dragging
-  dragX.push(x);
-  dragY.push(y);
-  dragZ.push(z);
+    // Ensure geometry has position attribute
+    if (!geometry.attributes.position) {
+      throw new Error('Geometry missing position attribute');
+    }
+
+    // Create normal attribute
+    console.log('Creating normal attribute...');
+    const positions = geometry.attributes.position;
+    const normals = new Float32Array(positions.count * 3);
+    for (let i = 0; i < positions.count; i++) {
+      const x = positions.getX(i);
+      const y = positions.getY(i);
+      const z = positions.getZ(i);
+      const length = Math.sqrt(x * x + y * y + z * z);
+      normals[i * 3] = x / length;
+      normals[i * 3 + 1] = y / length;
+      normals[i * 3 + 2] = z / length;
+    }
+    geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
+
+    // Compute bounding volumes
+    console.log('Computing bounding volumes...');
+    geometry.computeBoundingSphere();
+    geometry.computeBoundingBox();
+
+    console.log('Getting material...');
+    material = materials.cubeShader;
+    if (!material) {
+      throw new Error('Failed to get material');
+    }
+    console.log('Material:', material);
+
+    console.log('Creating mesh...');
+    cub = new THREE.Mesh(geometry, material);
+    if (!cub) {
+      throw new Error('Failed to create mesh');
+    }
+    console.log('Mesh created:', cub);
+    
+    console.log('Setting position...');
+    cub.position.set(x, y, z);
+    console.log('Position set');
+
+    cub.name = "Dodecahedron";
+    cub.userData.id = `Dodecahedron-${shapeCount[1]}`;
+    cub.userData.selected = false;
+    
+    console.log('Adding to scene...');
+    scene.add(cub);
+    shapes.push(cub);
+    console.log('Added to scene and shapes array');
+
+    // Add to shapeList
+    shapeList.push({
+      id: cub.userData.id,
+      x: parseInt(x, 10),
+      y: parseInt(y, 10),
+      z: parseInt(z, 10),
+    });
+    shapeCount[1]++;
+
+    try {
+      console.log('Creating edges...');
+      const edgesGeometry = new THREE.EdgesGeometry(geometry);
+      const edgesMaterial = new THREE.LineBasicMaterial({
+        color: 0xffffff,
+        linewidth: 2,
+      });
+      const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+      cub.add(edges);
+      console.log('Edges added');
+    } catch (edgeError) {
+      console.error('Error creating edges:', edgeError);
+    }
+
+    try {
+      console.log('Creating vertices...');
+      const positions = geometry.attributes.position;
+      console.log('Position attribute found:', positions);
+      
+      // Create vertices at each position
+      for (let i = 0; i < positions.count; i++) {
+        const vertex = new THREE.Vector3();
+        vertex.fromBufferAttribute(positions, i);
+        
+        // Create a small sphere at each vertex
+        const sphereGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        
+        // Position the sphere at the vertex
+        sphere.position.copy(vertex);
+        cub.add(sphere);
+        
+        // Add to points array
+        point.push(sphere);
+        
+        if (i === 0) {
+          shapeVertex.push(sphere);
+        }
+      }
+      console.log('Vertices created');
+    } catch (vertexError) {
+      console.error('Error creating vertices:', vertexError);
+      console.error('Geometry details:', {
+        hasAttributes: geometry.attributes ? 'yes' : 'no',
+        hasPosition: geometry.attributes && geometry.attributes.position ? 'yes' : 'no',
+        geometryType: geometry.type,
+        geometry: geometry
+      });
+    }
+
+    // Store initial position for dragging
+    dragX.push(x);
+    dragY.push(y);
+    dragZ.push(z);
+
+    return cub;
+  } catch (error) {
+    console.error('Error creating dodecahedron:', error);
+    console.error('Error details:', {
+      geometry: geometry ? 'created' : 'failed',
+      material: material ? 'created' : 'failed',
+      cub: cub ? 'created' : 'failed',
+      scene: scene ? 'valid' : 'invalid',
+      shapes: shapes ? 'valid' : 'invalid'
+    });
+    return null;
+  }
 };
 
 export const createOctahedron = function (
