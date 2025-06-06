@@ -393,12 +393,6 @@ let buttons = document.getElementsByTagName("button");
 // Even though the listener itself triggers only once per click, multiple listeners were there, so the same action was executed multiple times.
 document.getElementById("add-shape-btn").onclick = function () {
   addModal.style.display = "block";
-
-  // First, remove any existing event listener before adding a new one
-  modalbutton2.removeEventListener("click", handleShapeAddition);
-
-  // Add the event listener for the modal button
-  modalbutton2.addEventListener("click", handleShapeAddition);
 };
 
 // Shape add button handler
@@ -419,9 +413,6 @@ document.querySelector('.add-button').addEventListener('click', function() {
     case 'Cube':
       shapeCreated = createCube(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
       break;
-    case 'Dodecahedron':
-      shapeCreated = createDodecahedron(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
-      break;
     case 'Octahedron':
       shapeCreated = createOctahedron(x, y, z, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
       break;
@@ -432,50 +423,11 @@ document.querySelector('.add-button').addEventListener('click', function() {
 
   if (shapeCreated) {
     updateShapeList(shapeList);
-    modalAdd.style.display = "none";
+    addModal.style.display = "none";
   } else {
     alert('Failed to create shape. Please check the coordinates.');
   }
 });
-
-// Function to handle shape addition
-function handleShapeAddition() {
-  let xcoord = parseFloat(document.getElementById("x1").value);
-  let ycoord = parseFloat(document.getElementById("y1").value);
-  let zcoord = parseFloat(document.getElementById("z1").value);
-  
-  // Validate coordinates
-  if (isNaN(xcoord) || isNaN(ycoord) || isNaN(zcoord)) {
-    alert('Please enter valid numeric coordinates');
-    return;
-  }
-
-  noOfShapes++;
-  const shapeType = document.getElementById("shape-add-dropdown").value;
-  let shapeCreated = false;
-
-  switch(shapeType) {
-    case 'Cube':
-      shapeCreated = createCube(xcoord, ycoord, zcoord, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
-      break;
-    case 'Dodecahedron':
-      shapeCreated = createDodecahedron(xcoord, ycoord, zcoord, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
-      break;
-    case 'Octahedron':
-      shapeCreated = createOctahedron(xcoord, ycoord, zcoord, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
-      break;
-    case 'Tetrahedron':
-      shapeCreated = createTetrahedron(xcoord, ycoord, zcoord, shapes, shapeList, shapeCount, scene, point, shapeVertex, dragX, dragY, dragZ);
-      break;
-  }
-
-  if (shapeCreated) {
-    updateShapeList(shapeList);
-  addModal.style.display = "none";
-  } else {
-    alert('Failed to create shape. Please check the coordinates.');
-  }
-}
 
 let planeIntersect = new THREE.Vector3();
 let pIntersect = new THREE.Vector3();
