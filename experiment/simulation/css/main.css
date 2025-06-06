@@ -82,7 +82,7 @@
     }
     .slider-container {
         margin-top: -60px;
-        margin-bottom: 80px;
+        margin-bottom: 80px; /* Add bottom margin to prevent overlap with bug feature logo */
     }
     .axis-change{
         display: flex;
@@ -181,6 +181,10 @@
         display: block;
         text-align: center;
         margin: 5px 0;
+    }
+
+    .centered-slider {
+        width: 90%;
     }
 }
 
