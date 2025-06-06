@@ -1,0 +1,37 @@
+
+/home/runner/work/exp-transformations-translation-iiith/exp-transformations-translation-iiith/experiment/simulation/js/main.js
+   11:10  warning  'dot' is defined but never used                      no-unused-vars
+   13:7   warning  'moveButton' is assigned a value but never used      no-unused-vars
+   14:7   warning  'modalbutton1' is assigned a value but never used    no-unused-vars
+   15:7   warning  'modalbutton2' is assigned a value but never used    no-unused-vars
+   27:5   warning  'finalX' is assigned a value but never used          no-unused-vars
+   28:5   warning  'finalY' is assigned a value but never used          no-unused-vars
+   29:5   warning  'finalZ' is assigned a value but never used          no-unused-vars
+   31:5   warning  'initial_pos' is assigned a value but never used     no-unused-vars
+   50:5   warning  'frames' is assigned a value but never used          no-unused-vars
+   63:3   warning  'lock' is assigned a value but never used            no-unused-vars
+   71:3   warning  'mouse' is assigned a value but never used           no-unused-vars
+   72:3   warning  'raycaster' is assigned a value but never used       no-unused-vars
+   73:3   warning  'plane' is assigned a value but never used           no-unused-vars
+   74:3   warning  'pNormal' is assigned a value but never used         no-unused-vars
+  261:10  warning  'handleDelete' is defined but never used             no-unused-vars
+  285:10  warning  'handleEdit' is defined but never used               no-unused-vars
+  381:5   warning  'buttons' is assigned a value but never used         no-unused-vars
+  432:5   warning  'planeIntersect' is assigned a value but never used  no-unused-vars
+  433:5   warning  'pIntersect' is assigned a value but never used      no-unused-vars
+  434:5   warning  'shift' is assigned a value but never used           no-unused-vars
+  435:5   warning  'isDragging' is assigned a value but never used      no-unused-vars
+  436:5   warning  'dragObject' is defined but never used               no-unused-vars
+  437:5   warning  'dotList' is assigned a value but never used         no-unused-vars
+  438:5   warning  'noOfShapes' is assigned a value but never used      no-unused-vars
+  486:5   warning  'prev_x' is assigned a value but never used          no-unused-vars
+  487:5   warning  'prev_y' is assigned a value but never used          no-unused-vars
+  488:5   warning  'prev_z' is assigned a value but never used          no-unused-vars
+  638:9   warning  'gridHelper' is assigned a value but never used      no-unused-vars
+
+/home/runner/work/exp-transformations-translation-iiith/exp-transformations-translation-iiith/experiment/simulation/js/materials.js
+   4:10  warning  'vertexShader' is defined but never used    no-unused-vars
+  15:10  warning  'fragmentShader' is defined but never used  no-unused-vars
+
+✖ 30 problems (0 errors, 30 warnings)
+
