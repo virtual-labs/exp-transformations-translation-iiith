@@ -1,10 +1,21 @@
-A transformation maps points in space to other points. Translation moves every point by a constant distance in a constant direction. This can be interpreted as the addition of a constant vector to every point. If homogeneous representation is used, translation can be conveniently represented as a matrix multiplication. The translation matrix which translates by vx, vy and v z units looks like:
+#### Introduction to Translation:
 
-<img src="images/translation-matrix.png">
+Translation is a fundamental transformation in computer graphics that involves displacing objects from one position to another within a three-dimensional coordinate space. It plays a crucial role in repositioning graphical elements to achieve desired visual effects.
 
-On multiplication with a vector, the expected result of vector addition is obtained:
-Matrix representation for Point translation
+#### Translation in 3D Space:
 
-<img src="images/point_translation.png">
+In 3D graphics, the translation of a point (x, y, z) involves moving it along the x, y, and z axes by specific amounts represented by the translation vector (v<sub>x</sub>, v<sub>y</sub>, v<sub>z</sub>). The new coordinates (x', y', z') after translation can be expressed mathematically using matrix multiplication.
 
-Transformations can be interpreted as the modification of a co-ordinate system, keeping the points constant, effectively changing their relative positions. Thus, a translation of (2,3) translates the co-ordinate system's origin to (-2,-3), effectively translating all points with respect to this co-ordinate system.
+#### Matrix Representation of Translation in 3D:
+
+The translation operation in 3D space can be efficiently represented using a 4x4 matrix T as follows:
+
+<img src="./images/translation-matrix.png">
+
+#### Matrix Multiplication for Translation:
+
+To apply the translation matrix T to a point (x, y, z), the matrix multiplication is performed as follows:
+
+<img src="./images/point_translation.png">
+
+The resulting vector (x', y', z', 1) contains the translated coordinates. The additional fourth element, 1, ensures compatibility with the homogeneous coordinate system.
